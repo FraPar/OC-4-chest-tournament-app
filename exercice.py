@@ -135,7 +135,7 @@ elif menuChoice == "4":
         playerRank = input("Entrez le rang du joueur : ")
         playerData = {"tournamentName":tournamentName, "index":i, "playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
         """
-        playerData = {"tournamentName":tournamentName, "index":i, "playerName":i, "playerSurname":i, "playerBirthdate":i, "playerGender":i, "playerRank":randint(0, 1000)}
+        playerData = {"tournamentName":tournamentName, "index":i, "playerName":i, "playerSurname":i, "playerBirthdate":i, "playerGender":i, "playerRank":1}
         playerTable.insert(playerData)
 
         #TRI DES JOUEURS SELON LEUR ELO
@@ -245,7 +245,9 @@ elif menuChoice == "4":
     print("roundTuple[0][0][0]")
     print(roundTuple[0][0][0])"""
 
-    for tuples in roundTuple:
+    nextRound = []
+    i = 0
+    for tuples in roundTuple[::-1]:
         j = 0
         for datas in swissRule:
             """print("datas[0]")
@@ -253,14 +255,26 @@ elif menuChoice == "4":
             print("J = ")
             print(j)"""
             if tuples[0][0] == datas[0]:
-                rank = j
+                rank = j + 1
                 break
             j += 1
+        print("I est égal à : " + str(i))
+        print("Le joueur " + str(tuples[0][0]) + " est de rang " + str(rank))
+        if (len(swissRule)/2) > rank:
+            print(str(len(swissRule)/2) + "est > à " + str(rank))
+            nextRound.insert(i, tuples[1])
+            nextRound.insert(-i, tuples[0])
+        elif (len(swissRule)/2) <= rank:
+            print(str(len(swissRule)/2) + "est < à " + str(rank))
+            nextRound.insert(i, tuples[1])
+            nextRound.insert(-i, tuples[0])
+        print(nextRound)
         i += 1
-        print("Le joueur " + str(tuples[0][0]) + " est de rang " + str(rank + 1))
-
 
     """ROUND 3"""
+
+
+
     """ROUND 4"""
 
 

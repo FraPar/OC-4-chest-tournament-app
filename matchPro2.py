@@ -182,13 +182,9 @@ def sortPlayersByScore(match):
 playerList = [1, 2, 3, 4, 5, 6, 7, 8]
 #print(playerList)
 
-
-
 """NOMBRE DE JOUEURS DANS LA PARTIE"""
 nbPlayers = len(playerList)
 #print(nbPlayers)
-
-
 
 """DEFINITION DE LA MOITIE SUPERIEUR ET INFERIEURE"""
 middleNumberPlayers = int(nbPlayers/2)
@@ -287,15 +283,13 @@ print()
 print("ROUND 4 :")
 #print("totalMatch")
 #print(totalMatch)
-print("playersSorted")
-print(playersSorted)
+#print("playersSorted")
+#print(playersSorted)
 
 getPlayerMatchs(totalMatch, playerMatch, playersSorted)
 
 #print("totalMatch")
 #print(totalMatch)
-print("playersSorted")
-print(playersSorted)
 print()
 
 playerMatch = []
