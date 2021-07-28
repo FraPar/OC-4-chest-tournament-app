@@ -187,10 +187,6 @@ if menuChoice == "4":
         totalMatch.append(([first_halfPlayers[i], x], [second_halfPlayers[i], y]))
 
     """TRI DES JOUEURS PAR RANG ET PAR POINTS"""
-    #Prise du score
-    def getScore(elem):
-        return elem[1]
-
     #Tri des joueurs
     playersToSort = []
     for i in range(middleNumberPlayers):
@@ -234,32 +230,6 @@ if menuChoice == "4":
 
     getPlayerMatchs(totalMatch, playerMatch, playersSorted)
 
+    print()
+    print("Score final :")
     print(playersSorted)
-
-    playerMatch = []
-    playerOrder = []
-    match = []
-    for matchs in totalMatch:
-        playerMatch.append(matchs)
-    for player in playersSorted:
-        playerOrder.append(player[0])
-    #print("playerMatch")
-    #print(playerMatch)
-    #print("playerOrder")
-    #print(playerOrder)
-    #print("match")
-    #print(match)
-    matchToPlay.clear()
-    for players in playerOrder:
-        playedMatchs = []
-        for plays in totalMatch:
-            player1 = plays[0][0]
-            player2 = plays[1][0]
-            if player1 == players:
-                #print(player2)
-                playedMatchs.append(player2)
-            elif player2 == players:
-                #print(player1)
-                playedMatchs.append(player1)
-        #print()
-        print("Match joués par le Joueur " + str(players) + " : " + str(playedMatchs))
