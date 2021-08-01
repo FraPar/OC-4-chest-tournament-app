@@ -20,6 +20,25 @@ class HomeView:
         print("Choix non valable !\n\n")
 
 
+class AutomaticTournamentCreationView:
+    """Vue responsable de l'affichage du menu de création de tournoi automatique."""
+
+    def render(self):
+        print(
+            "Menu de création d'un nouveau tournoi (automatique)\n"
+            "==============================\n"
+            "1. lancer le tournoi automatique\n"
+            "2. retour à l'accueil\n"
+            "3. quitter le programme\n"
+        )
+
+    def get_user_choice(self):
+        return input("Que voulez-vous faire ? ").lower()
+
+    def notify_invalid_choice(self):
+        print("Choix non valable !\n\n")
+
+
 class TournamentCreationView:
     """Vue responsable de l'affichage du menu de création de tournoi."""
 
