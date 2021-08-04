@@ -103,11 +103,11 @@ class RoundCreationController:
 
         """DEFINITION DE LA MOITIE SUPERIEUR ET INFERIEURE"""
         self.middleNumberPlayers = int(self.nbPlayers/2)
-        #first_halfPlayers = self.playerList[:middleNumberPlayers]
-        #second_halfPlayers = self.playerList[middleNumberPlayers:]
+        self.first_halfPlayers = self.playerList[:self.middleNumberPlayers]
+        self.second_halfPlayers = self.playerList[self.middleNumberPlayers:]
 
         """Définition des variables"""
-        #self.playerMatch = []
+        self.playerMatch = []
         self.totalMatch = []
 
         #Tri des joueurs
@@ -119,19 +119,7 @@ class RoundCreationController:
 
     def run(self):
 
-
-
-        """NOMBRE DE JOUEURS DANS LA PARTIE"""
-        #nbPlayers = len(self.playerList)
-
-        """DEFINITION DE LA MOITIE SUPERIEUR ET INFERIEURE"""
-        #middleNumberPlayers = int(nbPlayers/2)
-        first_halfPlayers = self.playerList[:self.middleNumberPlayers]
-        second_halfPlayers = self.playerList[self.middleNumberPlayers:]
-
         """Définition des variables"""
-        playerMatch = []
-        #totalMatch = []
         round1 = []
         round2 = []
         round3 = []
@@ -150,8 +138,8 @@ class RoundCreationController:
                 y = 0.5
             else:
                 y = 0
-            round1.append(([first_halfPlayers[i], x], [second_halfPlayers[i], y]))
-            self.totalMatch.append(([first_halfPlayers[i], x], [second_halfPlayers[i], y]))
+            round1.append(([self.first_halfPlayers[i], x], [self.second_halfPlayers[i], y]))
+            self.totalMatch.append(([self.first_halfPlayers[i], x], [self.second_halfPlayers[i], y]))
 
         """TRI DES JOUEURS PAR RANG ET PAR POINTS"""
         for i in range(self.middleNumberPlayers):
@@ -165,17 +153,13 @@ class RoundCreationController:
         self.playersToSort.sort(key=self.getScore, reverse=True)
         self.playersSorted = self.playersToSort
 
-        playersToMatch = []
-        listOfPlayers = []
-
-
         print(self.playersSorted)
 
         """ROUND 2"""
         print()
         print("ROUND 2 :")
 
-        self.getPlayerMatchs(self.totalMatch, playerMatch, self.playersSorted)
+        self.getPlayerMatchs(self.totalMatch)
 
         print(self.playersSorted)
 
@@ -183,7 +167,7 @@ class RoundCreationController:
         print()
         print("ROUND 3 :")
 
-        self.getPlayerMatchs(self.totalMatch, playerMatch, self.playersSorted)
+        self.getPlayerMatchs(self.totalMatch)
 
         print(self.playersSorted)
 
@@ -191,20 +175,20 @@ class RoundCreationController:
         print()
         print("ROUND 4 :")
 
-        self.getPlayerMatchs(self.totalMatch, playerMatch, self.playersSorted)
+        self.getPlayerMatchs(self.totalMatch)
 
         print()
         print("Score final :")
         print(self.playersSorted)
 
     #fonction globale permettant d'assurer les rounds 2 à 4
-    def getPlayerMatchs(self, totalMatch, playerMatch, playersSorted):
-        playerMatch = []
+    def getPlayerMatchs(self, totalMatch):
+        self.playerMatch = []
         playerOrder = []
         #on prépare les données de joueurs pour mettre en place les paires du round
         #on insert l'ensemble des matchs dans une liste pour ne pas avoir de matchs doublons
         for matchs in totalMatch:
-            playerMatch.append(matchs)
+            self.playerMatch.append(matchs)
         #on insert les joueurs par rapport à leur score et leur rang dans une variable
         for player in self.playersSorted:
             playerOrder.append(player[0])
@@ -253,8 +237,6 @@ class RoundCreationController:
         #on teste si tous les matchs ont été alloué ou non.
         while len(self.matchToPlay) < len(self.playerList) and i <= len(self.playerList):
             i += 1
-            print()
-            print("Shuffle")
             #on récupère les 4+ derniers joueurs pour trouver un match à jouer
             newPlayerOrder = playerOrder[-i:]
             #on mélange les joueurs pour trouver un match à jouer
