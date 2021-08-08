@@ -113,9 +113,11 @@ class RoundCreationController:
         #Tri des joueurs
         self.playersToSort = []
 
-        self.match = []  
+        self.match = []
 
         self.matchToPlay = []
+
+        self.playerOrder = []
 
     def run(self):
 
@@ -159,7 +161,7 @@ class RoundCreationController:
         print()
         print("ROUND 2 :")
 
-        self.getPlayerMatchs(self.totalMatch)
+        self.getPlayerMatchs()
 
         print(self.playersSorted)
 
@@ -167,7 +169,7 @@ class RoundCreationController:
         print()
         print("ROUND 3 :")
 
-        self.getPlayerMatchs(self.totalMatch)
+        self.getPlayerMatchs()
 
         print(self.playersSorted)
 
@@ -175,39 +177,39 @@ class RoundCreationController:
         print()
         print("ROUND 4 :")
 
-        self.getPlayerMatchs(self.totalMatch)
+        self.getPlayerMatchs()
 
         print()
         print("Score final :")
         print(self.playersSorted)
 
     #fonction globale permettant d'assurer les rounds 2 à 4
-    def getPlayerMatchs(self, totalMatch):
+    def getPlayerMatchs(self):
         self.playerMatch = []
-        playerOrder = []
+        self.playerOrder = []
         #on prépare les données de joueurs pour mettre en place les paires du round
         #on insert l'ensemble des matchs dans une liste pour ne pas avoir de matchs doublons
-        for matchs in totalMatch:
+        for matchs in self.totalMatch:
             self.playerMatch.append(matchs)
         #on insert les joueurs par rapport à leur score et leur rang dans une variable
         for player in self.playersSorted:
-            playerOrder.append(player[0])
+            self.playerOrder.append(player[0])
         #on appelle la fonction permettant de connaître quels match ont été joué par nos joueurs
-        self.matchPlayed(playerOrder, totalMatch)
+        self.matchPlayed()
 
-        self.matchToAdd(playerOrder, totalMatch)
+        self.matchToAdd()
         self.sortPlayersByMatch()
         self.playMatch()
         self.sortPlayersByScore(self.match)
 
     #fonction permettant de connaître les matchs joués par notre joueur
-    def matchPlayed(self, playerOrder, totalMatch):
+    def matchPlayed(self):
         self.matchToPlay.clear()
         #on boucle sur les joueurs du tournoi, du 1er au dernier
-        for players in playerOrder:
+        for players in self.playerOrder:
             playedMatchs = []
             #on boucle sur les matchs déjà joué lors du tournoi
-            for plays in totalMatch:
+            for plays in self.totalMatch:
                 player1 = plays[0][0]
                 player2 = plays[1][0]
                 #on teste si le joueur 1 est le joueur sur lequel on boucle pour connaître son adversaire
@@ -218,35 +220,35 @@ class RoundCreationController:
                     playedMatchs.append(player1)
             print("Match joués par le Joueur " + str(players) + " : " + str(playedMatchs))
             #on appelle la fonction permettant de mettre un adversaire face à un autre
-            self.sortMatch(playedMatchs, players, playerOrder)
+            self.sortMatch(playedMatchs, players)
         pass
 
     #fonction permettant de mettre un joueur face à un autre sans doublon de match
-    def sortMatch(self, playedMatchs, players, playerOrder):
-        for i in range(len(playerOrder)):
+    def sortMatch(self, playedMatchs, players):
+        for i in range(len(self.playerOrder)):
             #on teste si le joueur n'a pas déjà été aloué a un autre match dans ce round, s'il n'a pas déjà été joué ou si on ne met pas un joueur face à lui même
-            if players != playerOrder[i] and (playerOrder[i] in playedMatchs) == False and ((players in self.matchToPlay) == False and (playerOrder[i] in self.matchToPlay) == False):
+            if players != self.playerOrder[i] and (self.playerOrder[i] in playedMatchs) == False and ((players in self.matchToPlay) == False and (self.playerOrder[i] in self.matchToPlay) == False):
                 self.matchToPlay.append(players)
-                self.matchToPlay.append(playerOrder[i])
+                self.matchToPlay.append(self.playerOrder[i])
                 break
 
     #fonction permettant de gérer le cas particulier des 2 derniers joueurs ayant déjà joué ensemble
-    def matchToAdd(self, playerOrder, totalMatch):
+    def matchToAdd(self):
         #on met i à 3 pour garder les 4 derniers joueurs dans notre piscine de joueurs à mettre en face
         i = 3
         #on teste si tous les matchs ont été alloué ou non.
         while len(self.matchToPlay) < len(self.playerList) and i <= len(self.playerList):
             i += 1
             #on récupère les 4+ derniers joueurs pour trouver un match à jouer
-            newPlayerOrder = playerOrder[-i:]
+            newPlayerOrder = self.playerOrder[-i:]
             #on mélange les joueurs pour trouver un match à jouer
             random.shuffle(newPlayerOrder)
-            playerOrder = playerOrder[:4]
+            self.playerOrder = self.playerOrder[:4]
             #on ajoute les joueurs ayant été mis face à face pour tester s'ils ont déjà joués ensemble
             for players in newPlayerOrder:
-                playerOrder.append(players)
+                self.playerOrder.append(players)
             #on appelle la fonction permettant de connaître quels match ont été joué par nos joueurs
-            self.matchPlayed(playerOrder, totalMatch)
+            self.matchPlayed()
             #si le nombre de joueurs présents dans le tournoi n'est pas équivalent à celui de joueurs a qui on a trouvé un match, on continue la boucle
             if len(self.matchToPlay) < len(self.playerList):
                 continue
