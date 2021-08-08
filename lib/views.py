@@ -1,6 +1,6 @@
 class HomeView:
     """Vue responsable d'afficher le menu d'accueil."""
-    
+
     @staticmethod
     def render():
         print(
@@ -21,7 +21,8 @@ class HomeView:
 
 
 class AutomaticTournamentCreationView:
-    """Vue responsable de l'affichage du menu de création de tournoi automatique."""
+    """Vue responsable de l'affichage du menu de création de
+    tournoi automatique."""
 
     def render(self):
         print(
@@ -39,15 +40,16 @@ class AutomaticTournamentCreationView:
         print("Choix non valable !\n\n")
 
 
-class TournamentCreationView:
+class ManualTournamentCreationView:
     """Vue responsable de l'affichage du menu de création de tournoi."""
 
     def render(self):
         print(
             "Menu de création d'un nouveau tournoi (manuel)\n"
             "==============================\n"
-            "1. retour à l'accueil\n"
-            "2. quitter le programme\n"
+            "1. créer un tournoi\n"
+            "2. retour à l'accueil\n"
+            "3. quitter le programme\n"
         )
 
     def get_user_choice(self):
