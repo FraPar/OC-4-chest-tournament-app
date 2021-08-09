@@ -2,6 +2,7 @@ import views
 
 from tinydb import TinyDB
 from random import randint, random
+import random 
 
 
 class ApplicationController:
@@ -349,6 +350,7 @@ class ManualRoundCreationController:
 
         # --- DEFINITION DES TABLES EN BASE DE DONNEES --- #
         self.tournamentTable = self.db.table('tournament_table')
+        self.playerTable = self.db.table('player_table')
 
         """CREATION DE LA LISTE DES JOUEURS"""
         self.playerList = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -389,7 +391,19 @@ class ManualRoundCreationController:
         tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription}
         self.tournamentTable.insert(tournamentData)
 
-
+        """DONNEES JOUEURS"""
+        swissRule = []
+        for i in range(1,9):
+            """
+            playerName = input("Entrez le nom du joueur : ")
+            playerSurname = input("Entrez le prénom du joueur : ")
+            playerBirthdate = input("Entrez la date de naissance du joueur : ")
+            playerGender = input("Entrez le genre du joueur : ")
+            playerRank = input("Entrez le rang du joueur : ")
+            playerData = {"tournamentName":tournamentName, "index":i, "playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+            """
+            playerData = {"tournamentName":tournamentName, "index":i, "playerName":i, "playerSurname":i, "playerBirthdate":i, "playerGender":i, "playerRank":1}
+            self.playerTable.insert(playerData)
 
         """Définition des variables"""
         round1 = []
