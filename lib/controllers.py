@@ -33,7 +33,7 @@ class HomeController:
         elif next_action == "2":
             return ManualTournamentCreationController()
         elif next_action == "3":
-            return PlayerCreationController()
+            return PlayerMenuController()
         elif next_action == "4":
             # mettre la reprise de tournoi en cours (pas encore mise en place)
             pass
@@ -347,6 +347,9 @@ class ManualRoundCreationController:
 
         # mettre les variables avec .self et les fonctions en self.
 
+        # --- DEFINITION DES TABLES EN BASE DE DONNEES --- #
+        self.tournamentTable = self.db.table('tournament_table')
+
         """CREATION DE LA LISTE DES JOUEURS"""
         self.playerList = [1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -372,6 +375,21 @@ class ManualRoundCreationController:
         self.playerOrder = []
 
     def run(self):
+
+
+        tournamentName = input("Entrez le nom du tournoi : ")
+        tournamentLocation = input("Entrez le lieu du tournoi : ")
+        tournamentDate = input("Entrez la date du tournoi : ")
+        tournamentRound = input("Entrez le nombre de round du tournoi : ")
+        #tournamentAllRound = input("Entrez le nom du tournoi : ")
+        #tournamentPlayers = input("Entrez le nom des joueurs : ")
+        tournamentTime = input("Entrez le temps du tournoi : ")
+        tournamentDescription = input("Entrez la description du tournoi : ")
+        #tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Players":{'Player1':[], 'Player2':{}, 'Player3':{}, 'Player4':{}, 'Player5':{}, 'Player6':{}, 'Player7':{}, 'Player8':{}}, "Time":tournamentTime, "Description":tournamentDescription}
+        tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription}
+        self.tournamentTable.insert(tournamentData)
+
+
 
         """Définition des variables"""
         round1 = []
@@ -589,24 +607,47 @@ class ManualRoundCreationController:
         self.playersSorted = self.playersToSort
 
 
+class PlayerMenuController:
+    """Contrôleur responsable de gérer le menu de création d'un nouveau
+    joueur.
+    """
+
+    def __init__(self):
+        self.view = views.PlayerMenuView()
+
+    def run(self):
+        self.view.render()
+        next_action = self.view.get_user_choice()
+        if next_action == "1":
+            return PlayerCreationController()
+        elif next_action == "2":
+            return HomeController()
+        elif next_action == "3":
+            return EndController()
+        else:
+            self.view.notify_invalid_choice()
+            return PlayerMenuController()
+
+
 class PlayerCreationController:
     """Contrôleur responsable de gérer le menu de création d'un nouveau
     joueur.
     """
 
     def __init__(self):
-        self.view = views.PlayerCreationView()
+        self.db = TinyDB('db.json')
+        self.playerTable = self.db.table('player_table')
 
     def run(self):
-        self.view.render()
-        next_action = self.view.get_user_choice()
-        if next_action == "1":
-            return HomeController()
-        elif next_action == "2":
-            return EndController()
-        else:
-            self.view.notify_invalid_choice()
-            return PlayerCreationController()
+        playerName = input("Entrez le nom du joueur : ")
+        playerSurname = input("Entrez le prénom du joueur : ")
+        playerBirthdate = input("Entrez la date de naissance du joueur : ")
+        playerGender = input("Entrez le genre du joueur : ")
+        playerRank = input("Entrez le rang du joueur : ")
+        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+        print("")
+        self.playerTable.insert(playerData)
+        return PlayerMenuController()
 
 
 class EndController:

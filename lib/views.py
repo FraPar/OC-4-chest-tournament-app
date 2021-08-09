@@ -59,15 +59,16 @@ class ManualTournamentCreationView:
         print("Choix non valable !\n\n")
 
 
-class PlayerCreationView:
+class PlayerMenuView:
     """Vue responsable de l'affichage du menu de creation de joueurs."""
 
     def render(self):
         print(
             "Menu de création d'un joueur (manuel)\n"
             "==============================\n"
-            "1. retour à l'accueil\n"
-            "2. quitter le programme\n"
+            "1. créer un joueur\n"
+            "2. retour à l'accueil\n"
+            "3. quitter le programme\n"
         )
 
     def get_user_choice(self):
