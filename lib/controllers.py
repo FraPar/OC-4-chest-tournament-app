@@ -394,18 +394,36 @@ class ManualRoundCreationController:
         i = 0
         while len(self.playerList) < 8:
             i += 1
-            data = i
-            self.playerList.append(data)
+            print("Voulez-vous :")
+            print("==============================")
+            print("1. Ajouter un joueur déjà éxistant")
+            print("2. Créer un nouveau joueur (Manuel)")
+            print("3. Créer un nouveau joueur (Automatique)")
+            
+            wrongChoice = True
+            while wrongChoice == True:
+                userChoice = input("Que voulez-vous faire? ")
+                if userChoice == "1":
+                    wrongChoice = False
+                elif userChoice == "2":
+                    wrongChoice = False
+                    self.creationPlayer()
+                elif userChoice == "3":
+                    wrongChoice = False
+                    playerName = "Name" + str(i)
+                    playerSurname = "Surname" + str(i)
+                    playerBirthdate = "BDate" + str(i)
+                    playerGender = "Gender" + str(i)
+                    playerRank = random.randint(0, 1000)
+                    playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+                    self.playerPool.insert(playerData)
+                else:
+                    wrongChoice = True
+                    print("Veuillez entrer un entrée valide")
+
+            self.playerList.append(i)
             continue
 
-            """
-            playerName = input("Entrez le nom du joueur : ")
-            playerSurname = input("Entrez le prénom du joueur : ")
-            playerBirthdate = input("Entrez la date de naissance du joueur : ")
-            playerGender = input("Entrez le genre du joueur : ")
-            playerRank = input("Entrez le rang du joueur : ")
-            playerData = {"tournamentName":tournamentName, "index":i, "playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
-            """
         print(self.playerList)
         self.nbPlayers = len(self.playerList)
         self.middleNumberPlayers = int(self.nbPlayers/2)
@@ -415,12 +433,6 @@ class ManualRoundCreationController:
         print(self.middleNumberPlayers)
         print(self.first_halfPlayers)
         print(self.second_halfPlayers)
-
-        """Définition des variables"""
-        round1 = []
-        # round2 = []
-        # round3 = []
-        # round4 = []
 
         """ROUND 1"""
         print()
@@ -435,15 +447,13 @@ class ManualRoundCreationController:
                 y = 0.5
             else:
                 y = 0
-            round1.append(([self.first_halfPlayers[i], x],
-                           [self.second_halfPlayers[i], y]))
             self.totalMatch.append(([self.first_halfPlayers[i], x],
                                     [self.second_halfPlayers[i], y]))
 
         """TRI DES JOUEURS PAR RANG ET PAR POINTS"""
         for i in range(self.middleNumberPlayers):
-            self.playersToSort.append(round1[i][0])
-            self.playersToSort.append(round1[i][1])
+            self.playersToSort.append(self.totalMatch[i][0])
+            self.playersToSort.append(self.totalMatch[i][1])
 
         # Tri des joueurs par rang
         self.playersToSort.sort()
@@ -479,6 +489,19 @@ class ManualRoundCreationController:
         print()
         print("Score final :")
         print(self.playersSorted)
+
+        print("Matchs joués :")
+        print("Round 1 :")
+        print(self.totalMatch[:4])
+        print("Round 2 :")
+        print(self.totalMatch[4:8])
+        print("Round 3 :")
+        print(self.totalMatch[8:-4])
+        print("Round 4 :")
+        print(self.totalMatch[-4:])
+
+        tournamentData = {"matchs":self.totalMatch}
+        self.tournamentTable.update(tournamentData)
 
     # création ou séléction des joueurs
     def playerChoice(self):
