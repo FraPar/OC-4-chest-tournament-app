@@ -36,9 +36,11 @@ class HomeController:
         elif next_action == "3":
             return PlayerMenuController()
         elif next_action == "4":
+            return ReportMenuController()
+        elif next_action == "5":
             # mettre la reprise de tournoi en cours (pas encore mise en place)
             pass
-        elif next_action == "5":
+        elif next_action == "6":
             return EndController()
         else:
             self.view.notify_invalid_choice()
@@ -391,6 +393,7 @@ class ManualRoundCreationController:
         self.tournamentTable.insert(tournamentData)
 
         """DONNEES JOUEURS"""
+        # index = self.playerPool.all()[0] pour index?
         i = 0
         while len(self.playerList) < 8:
             i += 1
@@ -725,6 +728,96 @@ class PlayerCreationController:
 
         for datas in self.playerPool.all():
             print(datas)
+
+
+class ReportMenuController:
+    """Contrôleur responsable de gérer le menu de création d'un nouveau
+    joueur.
+    """
+
+    def __init__(self):
+        self.view = views.ReportMenuView()
+
+    def run(self):
+        self.view.render()
+        next_action = self.view.get_user_choice()
+        if next_action == "1":
+            return ReportAllPlayerController()
+        elif next_action == "2":
+            return HomeController()
+        elif next_action == "3":
+            return EndController()
+        else:
+            self.view.notify_invalid_choice()
+            return ReportMenuController()
+    pass
+
+
+class ReportAllPlayerController:
+    """Contrôleur responsable de gérer la création d'un nouveau
+    rapport.
+    """
+
+    def __init__(self):
+        self.db = TinyDB('db.json')
+        self.playerPool = self.db.table('player_pool')
+
+    def run(self):
+        self.creationReport()
+        return ReportMenuController()
+
+    def creationReport(self):
+        print("Voulez-vous :")
+        print("==============================")
+        print("1. Trier l'ensemble par ordre Alphabétique")
+        print("2. Trier l'ensemble par Rang")
+        print("3. Retourner au menu")
+        
+        wrongChoice = True
+        while wrongChoice == True:
+            userChoice = input("Que voulez-vous faire? ")
+            if userChoice == "1":
+                wrongChoice = False
+                self.player_SortName()
+            elif userChoice == "2":
+                wrongChoice = False
+                self.player_SortRank()
+            elif userChoice == "3":
+                wrongChoice = False
+                return EndController()
+            else:
+                wrongChoice = True
+                print("Veuillez entrer un entrée valide")
+            continue
+
+    def player_SortName(self):
+        # NE FONCTIONNE PAS
+        playerPool = self.playerPool.all()[0]
+        print(playerPool)
+        print(playerPool[1].items())
+        sorted_list = sorted(playerPool[1].items(), key=lambda x: x[1])
+        for datas in sorted_list:
+            print(datas)
+
+    def player_SortRank(self):
+        # NE FONCTIONNE PAS
+        def sort_Rank(elem):
+            return elem[4]
+        sorted_list = sorted(self.playerPool.all(), key=sort_Rank)
+        for datas in sorted_list:
+            print(datas)
+
+    """
+    Liste de tous les acteurs :
+    par ordre alphabétique ;
+    par classement.
+    Liste de tous les joueurs d'un tournoi :
+    par ordre alphabétique ;
+    par classement.
+    Liste de tous les tournois.
+    Liste de tous les tours d'un tournoi.
+    Liste de tous les matchs d'un tournoi.
+    """
 
 
 class EndController:
