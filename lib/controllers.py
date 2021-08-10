@@ -350,18 +350,19 @@ class ManualRoundCreationController:
 
         # --- DEFINITION DES TABLES EN BASE DE DONNEES --- #
         self.tournamentTable = self.db.table('tournament_table')
+        self.playerPool = self.db.table('player_pool')
         self.playerTable = self.db.table('player_table')
 
         """CREATION DE LA LISTE DES JOUEURS"""
-        self.playerList = [1, 2, 3, 4, 5, 6, 7, 8]
+        self.playerList = []
 
         """NOMBRE DE JOUEURS DANS LA PARTIE"""
-        self.nbPlayers = len(self.playerList)
+        self.nbPlayers = 0
 
         """DEFINITION DE LA MOITIE SUPERIEUR ET INFERIEURE"""
-        self.middleNumberPlayers = int(self.nbPlayers/2)
-        self.first_halfPlayers = self.playerList[:self.middleNumberPlayers]
-        self.second_halfPlayers = self.playerList[self.middleNumberPlayers:]
+        self.middleNumberPlayers = 0
+        self.first_halfPlayers = 0
+        self.second_halfPlayers = 0
 
         """Définition des variables"""
         self.playerMatch = []
@@ -377,8 +378,6 @@ class ManualRoundCreationController:
         self.playerOrder = []
 
     def run(self):
-
-
         tournamentName = input("Entrez le nom du tournoi : ")
         tournamentLocation = input("Entrez le lieu du tournoi : ")
         tournamentDate = input("Entrez la date du tournoi : ")
@@ -392,8 +391,13 @@ class ManualRoundCreationController:
         self.tournamentTable.insert(tournamentData)
 
         """DONNEES JOUEURS"""
-        swissRule = []
-        for i in range(1,9):
+        i = 0
+        while len(self.playerList) < 8:
+            i += 1
+            data = i
+            self.playerList.append(data)
+            continue
+
             """
             playerName = input("Entrez le nom du joueur : ")
             playerSurname = input("Entrez le prénom du joueur : ")
@@ -402,8 +406,15 @@ class ManualRoundCreationController:
             playerRank = input("Entrez le rang du joueur : ")
             playerData = {"tournamentName":tournamentName, "index":i, "playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
             """
-            playerData = {"tournamentName":tournamentName, "index":i, "playerName":i, "playerSurname":i, "playerBirthdate":i, "playerGender":i, "playerRank":1}
-            self.playerTable.insert(playerData)
+        print(self.playerList)
+        self.nbPlayers = len(self.playerList)
+        self.middleNumberPlayers = int(self.nbPlayers/2)
+        self.first_halfPlayers = self.playerList[:self.middleNumberPlayers]
+        self.second_halfPlayers = self.playerList[self.middleNumberPlayers:]
+        print(self.nbPlayers)
+        print(self.middleNumberPlayers)
+        print(self.first_halfPlayers)
+        print(self.second_halfPlayers)
 
         """Définition des variables"""
         round1 = []
@@ -469,10 +480,33 @@ class ManualRoundCreationController:
         print("Score final :")
         print(self.playersSorted)
 
+    # création ou séléction des joueurs
+    def playerChoice(self):
+        for datas in self.playerPool.all():
+            print("Tournoi : " + datas.get('Name'))
+        tournamentChoice = input("Séléctionnez le tournoi :")
+        print(self.db.tables())
+        showTable = self.playerTable.search(where("Name") == tournamentChoice)
+        print(showTable)
+        pass
+
+    def creationPlayer(self):
+        playerName = input("Entrez le nom du joueur : ")
+        playerSurname = input("Entrez le prénom du joueur : ")
+        playerBirthdate = input("Entrez la date de naissance du joueur : ")
+        playerGender = input("Entrez le genre du joueur : ")
+        playerRank = input("Entrez le rang du joueur : ")
+        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+
+        self.playerPool.insert(playerData)
+
+        for datas in self.playerPool.all():
+            print(datas)
+
     # fonction globale permettant d'assurer les rounds 2 à 4
     def getPlayerMatchs(self):
-        self.playerMatch = []
-        self.playerOrder = []
+        self.playerMatch.clear()
+        self.playerOrder.clear()
         # on prépare les données de joueurs pour mettre en
         # place les paires du round
         # on insert l'ensemble des matchs dans une liste
@@ -650,18 +684,24 @@ class PlayerCreationController:
 
     def __init__(self):
         self.db = TinyDB('db.json')
-        self.playerTable = self.db.table('player_table')
+        self.playerPool = self.db.table('player_pool')
 
     def run(self):
+        self.creationPlayer()
+        return PlayerMenuController()
+
+    def creationPlayer(self):
         playerName = input("Entrez le nom du joueur : ")
         playerSurname = input("Entrez le prénom du joueur : ")
         playerBirthdate = input("Entrez la date de naissance du joueur : ")
         playerGender = input("Entrez le genre du joueur : ")
         playerRank = input("Entrez le rang du joueur : ")
         playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
-        print("")
-        self.playerTable.insert(playerData)
-        return PlayerMenuController()
+
+        self.playerPool.insert(playerData)
+
+        for datas in self.playerPool.all():
+            print(datas)
 
 
 class EndController:
