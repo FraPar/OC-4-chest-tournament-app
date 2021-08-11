@@ -877,7 +877,8 @@ class ReportTournamentController:
 
     def __init__(self):
         self.db = TinyDB('db.json')
-        self.tournament_Table = self.db.table('tournament_table')
+        self.tournamentTable = self.db.table('tournament_table')
+
 
     def run(self):
         self.creationReport()
@@ -885,7 +886,7 @@ class ReportTournamentController:
 
     def creationReport(self):
 
-        for datas in self.tournament_Table.all():
+        for datas in self.tournamentTable.all():
             print("ID : " + ", Nom : " + str(datas["Name"]) + ", Lieu : " + str(datas["Location"]) + ", Date : "
                   + str(datas["Date"]) + ", Nombre de rounds : " + str(datas["Round"]) + ", Type de temps : "
                   + str(datas["Time"]) + ", Description : " + str(datas["Description"]))
@@ -903,14 +904,20 @@ class ReportTournamentController:
                 wrongChoice = False
                 tournamentChoice = input("Séléctionnez le tournoi :")
                 user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
-                print(user_Choice)
-                self.player_SortName()
+                print("ID : " + ", Nom : " + str(user_Choice[0]["Name"]) + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : "
+                    + str(user_Choice[0]["Date"]) + ", Nombre de rounds : " + str(user_Choice[0]["Round"]) + ", Type de temps : "
+                    + str(user_Choice[0]["Time"]) + ", Description : " + str(user_Choice[0]["Description"]))
+                if user_Choice[0]["Save_step"] >= 3: 
+                    print("Joueurs : " + str(user_Choice[0]["players"]))
+                    print("Matchs : " + str(user_Choice[0]["matchs"]))
+                else:
+                    print("Aucun match n'à été joué pour le moment")
+                
             elif userChoice == "2":
                 wrongChoice = False
                 tournamentChoice = input("Séléctionnez le tournoi :")
                 user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
                 print(user_Choice)
-                self.player_SortRank()
             elif userChoice == "3":
                 wrongChoice = False
                 return EndController()
