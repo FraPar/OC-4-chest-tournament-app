@@ -4,6 +4,10 @@ from tinydb import TinyDB
 from random import randint, random
 import random 
 
+# VOIR POUR LA REPRISE D'UN MATCH EN COURS (State depuis une class)
+# PROBLEME D'INDEXAGE DES TOURNOIS + JOUEURS
+# TRI DES JOUEURS PAR ALPHABET ET RANG
+# TRI DES JOUEURS PAR RANG LORS D'UN TOURNOI
 
 class ApplicationController:
     """Représente l'application elle-même et permet de la démarrer."""
@@ -380,6 +384,7 @@ class ManualRoundCreationController:
         self.playerOrder = []
 
     def run(self):
+
         tournamentName = input("Entrez le nom du tournoi : ")
         tournamentLocation = input("Entrez le lieu du tournoi : ")
         tournamentDate = input("Entrez la date du tournoi : ")
@@ -389,8 +394,11 @@ class ManualRoundCreationController:
         tournamentTime = input("Entrez le temps du tournoi : ")
         tournamentDescription = input("Entrez la description du tournoi : ")
         #tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Players":{'Player1':[], 'Player2':{}, 'Player3':{}, 'Player4':{}, 'Player5':{}, 'Player6':{}, 'Player7':{}, 'Player8':{}}, "Time":tournamentTime, "Description":tournamentDescription}
-        tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription}
+        tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":0}
         self.tournamentTable.insert(tournamentData)
+
+        """ETAPE 0 DE SAUVEGARDE"""
+        # if Load_state == True and Save_step == 0:
 
         """DONNEES JOUEURS"""
         # index = self.playerPool.all()[0] pour index?
@@ -437,6 +445,12 @@ class ManualRoundCreationController:
         print(self.first_halfPlayers)
         print(self.second_halfPlayers)
 
+        tournamentData = {"Save_step":1}
+        self.tournamentTable.update(tournamentData)
+
+        """ETAPE 1 DE SAUVEGARDE"""
+        # if Load_state == True and Save_step == 1:
+
         """ROUND 1"""
         print()
         print("ROUND 1 :")
@@ -467,6 +481,12 @@ class ManualRoundCreationController:
 
         print(self.playersSorted)
 
+        tournamentData = {"Save_step":2}
+        self.tournamentTable.update(tournamentData)
+
+        """ETAPE 2 DE SAUVEGARDE"""
+        # if Load_state == True and Save_step == 2:
+
         """ROUND 2"""
         print()
         print("ROUND 2 :")
@@ -475,6 +495,12 @@ class ManualRoundCreationController:
 
         print(self.playersSorted)
 
+        tournamentData = {"Save_step":3}
+        self.tournamentTable.update(tournamentData)
+
+        """ETAPE 3 DE SAUVEGARDE"""
+        # if Load_state == True and Save_step == 3:
+
         """ROUND 3"""
         print()
         print("ROUND 3 :")
@@ -482,6 +508,12 @@ class ManualRoundCreationController:
         self.getPlayerMatchs()
 
         print(self.playersSorted)
+
+        tournamentData = {"Save_step":4}
+        self.tournamentTable.update(tournamentData)
+
+        """ETAPE 4 DE SAUVEGARDE"""
+        # if Load_state == True and Save_step == 4:
 
         """ROUND 4"""
         print()
@@ -731,8 +763,7 @@ class PlayerCreationController:
 
 
 class ReportMenuController:
-    """Contrôleur responsable de gérer le menu de création d'un nouveau
-    joueur.
+    """Contrôleur responsable de gérer le menu de rapports.
     """
 
     def __init__(self):
@@ -744,8 +775,10 @@ class ReportMenuController:
         if next_action == "1":
             return ReportAllPlayerController()
         elif next_action == "2":
-            return HomeController()
+            return ReportTournamentController()
         elif next_action == "3":
+            return HomeController()
+        elif next_action == "4":
             return EndController()
         else:
             self.view.notify_invalid_choice()
@@ -755,7 +788,7 @@ class ReportMenuController:
 
 class ReportAllPlayerController:
     """Contrôleur responsable de gérer la création d'un nouveau
-    rapport.
+    rapport avec l'ensemble des acteurs.
     """
 
     def __init__(self):
@@ -808,9 +841,9 @@ class ReportAllPlayerController:
             print(datas)
 
     """
-    Liste de tous les acteurs :
-    par ordre alphabétique ;
-    par classement.
+    xxxx Liste de tous les acteurs :
+    xxxxxx par ordre alphabétique ;
+    xxxxxx par classement.
     Liste de tous les joueurs d'un tournoi :
     par ordre alphabétique ;
     par classement.
@@ -818,6 +851,49 @@ class ReportAllPlayerController:
     Liste de tous les tours d'un tournoi.
     Liste de tous les matchs d'un tournoi.
     """
+
+
+class ReportTournamentController:
+    """Contrôleur responsable de gérer la création d'un nouveau
+    rapport avec tous les tournois.
+    """
+
+    def __init__(self):
+        self.db = TinyDB('db.json')
+        self.tournament_Table = self.db.table('tournament_table')
+
+    def run(self):
+        self.creationReport()
+        return ReportMenuController()
+
+    def creationReport(self):
+
+        for datas in self.tournament_Table.all():
+            print(datas)
+
+
+        print("Voulez-vous :")
+        print("==============================")
+        print("1. Voir les tours d'un tournoi spécifique")
+        print("2. Voir les matchs d'un tournoi spécifique")
+        print("3. Retourner au menu")
+        
+        wrongChoice = True
+        while wrongChoice == True:
+            userChoice = input("Que voulez-vous faire? ")
+            if userChoice == "1":
+                wrongChoice = False
+                self.player_SortName()
+            elif userChoice == "2":
+                wrongChoice = False
+                self.player_SortRank()
+            elif userChoice == "3":
+                wrongChoice = False
+                return EndController()
+            else:
+                wrongChoice = True
+                print("Veuillez entrer un entrée valide")
+            continue
 
 
 class EndController:

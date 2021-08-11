@@ -86,9 +86,10 @@ class ReportMenuView:
         print(
             "Menu de création d'un rapport\n"
             "==============================\n"
-            "1. créer un rapport\n"
-            "2. retour à l'accueil\n"
-            "3. quitter le programme\n"
+            "1. créer un rapport sur l'ensemble des joueurs\n"
+            "2. créer un rapport sur l'ensemble des tournois\n"
+            "3. retour à l'accueil\n"
+            "4. quitter le programme\n"
         )
 
     def get_user_choice(self):
