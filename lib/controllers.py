@@ -1,6 +1,6 @@
 import views
 
-from tinydb import TinyDB
+from tinydb import TinyDB, where
 from random import randint, random
 import random 
 
@@ -27,6 +27,8 @@ class HomeController:
     """Contrôleur responsable de gérer le menu d'accueil."""
 
     def __init__(self):
+        self.db = TinyDB('db.json')
+        self.tournamentTable = self.db.table('tournament_table')
         self.view = views.HomeView()
 
     def run(self):
@@ -37,20 +39,25 @@ class HomeController:
             return AutomaticTournamentCreationController()
         elif next_action == "2":
             Load_state = False
-            return ManualTournamentCreationController()
-            # return ManualTournamentCreationController(Load_state)
+            # return ManualTournamentCreationController()
+            Save_step = 0
+            return ManualRoundCreationController(Load_state, Save_step)
         elif next_action == "3":
             return PlayerMenuController()
         elif next_action == "4":
             return ReportMenuController()
         elif next_action == "5":
-            # mettre la reprise de tournoi en cours (pas encore mise en place)
             Load_state = True
+            # return ManualTournamentCreationController()
 
-            return ManualTournamentCreationController()
-            # return ManualTournamentCreationController(Load_state)
+            for datas in self.tournamentTable.all():
+                print("Tournoi : " + datas.get('Name'))
+            tournamentChoice = input("Séléctionnez le tournoi :")
+            Save_step = self.tournamentTable.search(where("Name") == tournamentChoice)[0]["Save_step"]
+            # print(Save_step[0]["Save_step"])
+            
+            return ManualRoundCreationController(Load_state, Save_step)
 
-            pass
         elif next_action == "6":
             return EndController()
         else:
@@ -330,40 +337,20 @@ class AutomaticRoundCreationController:
         self.playersSorted = self.playersToSort
 
 
-class ManualTournamentCreationController:
-    """Contrôleur responsable de gérer le menu de création d'un nouveau
-    tournoi.
-    """
-
-    def __init__(self):
-        self.view = views.ManualTournamentCreationView()
-
-    def run(self):
-        self.view.render()
-        next_action = self.view.get_user_choice()
-        if next_action == "1":
-            return ManualRoundCreationController()
-        elif next_action == "2":
-            return HomeController()
-        elif next_action == "3":
-            return EndController()
-        else:
-            self.view.notify_invalid_choice()
-            return ManualTournamentCreationController()
-
-
 class ManualRoundCreationController:
     """Mode Manuel à mettre en place
     """
 
-    def __init__(self):
+    def __init__(self, Load_state, Save_step):
     # def __init__(self, Load_state):
         self.db = TinyDB('db.json')
 
         # mettre les variables avec .self et les fonctions en self.
 
         # variable de chargement de tournoi
-        # self.Load_state = Load_state
+        self.Load_state = Load_state
+        self.Save_step = Save_step
+
 
         # --- DEFINITION DES TABLES EN BASE DE DONNEES --- #
         self.tournamentTable = self.db.table('tournament_table')
@@ -396,158 +383,175 @@ class ManualRoundCreationController:
 
     def run(self):
 
-        tournamentName = input("Entrez le nom du tournoi : ")
-        tournamentLocation = input("Entrez le lieu du tournoi : ")
-        tournamentDate = input("Entrez la date du tournoi : ")
-        tournamentRound = input("Entrez le nombre de round du tournoi : ")
-        #tournamentAllRound = input("Entrez le nom du tournoi : ")
-        #tournamentPlayers = input("Entrez le nom des joueurs : ")
-        tournamentTime = input("Entrez le temps du tournoi : ")
-        tournamentDescription = input("Entrez la description du tournoi : ")
-        #tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Players":{'Player1':[], 'Player2':{}, 'Player3':{}, 'Player4':{}, 'Player5':{}, 'Player6':{}, 'Player7':{}, 'Player8':{}}, "Time":tournamentTime, "Description":tournamentDescription}
-        tournamentData = {"ID":1 ,"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":0}
-        self.tournamentTable.insert(tournamentData)
-
         """ETAPE 0 DE SAUVEGARDE"""
-        # if Load_state == True and Save_step == 0:
-
-        """DONNEES JOUEURS"""
-        # index = self.playerPool.all()[0] pour index?
-        i = 0
-        while len(self.playerList) < 8:
-            i += 1
-            print("Voulez-vous :")
-            print("==============================")
-            print("1. Ajouter un joueur déjà éxistant")
-            print("2. Créer un nouveau joueur (Manuel)")
-            print("3. Créer un nouveau joueur (Automatique)")
+        print(self.Load_state)
+        print(self.Save_step)
+        if (self.Load_state == True and self.Save_step == 0) or self.Load_state == False:
+            tournamentName = input("Entrez le nom du tournoi : ")
+            tournamentLocation = input("Entrez le lieu du tournoi : ")
+            tournamentDate = input("Entrez la date du tournoi : ")
+            tournamentRound = input("Entrez le nombre de round du tournoi : ")
+            #tournamentAllRound = input("Entrez le nom du tournoi : ")
+            #tournamentPlayers = input("Entrez le nom des joueurs : ")
+            tournamentTime = input("Entrez le temps du tournoi : ")
+            tournamentDescription = input("Entrez la description du tournoi : ")
+            #tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Players":{'Player1':[], 'Player2':{}, 'Player3':{}, 'Player4':{}, 'Player5':{}, 'Player6':{}, 'Player7':{}, 'Player8':{}}, "Time":tournamentTime, "Description":tournamentDescription}
             
-            wrongChoice = True
-            while wrongChoice == True:
-                userChoice = input("Que voulez-vous faire? ")
-                if userChoice == "1":
-                    wrongChoice = False
-                elif userChoice == "2":
-                    wrongChoice = False
-                    self.creationPlayer()
-                elif userChoice == "3":
-                    wrongChoice = False
-                    playerName = "Name" + str(i)
-                    playerSurname = "Surname" + str(i)
-                    playerBirthdate = "BDate" + str(i)
-                    playerGender = "Gender" + str(i)
-                    playerRank = random.randint(0, 1000)
-                    playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
-                    self.playerPool.insert(playerData)
+            # AJOUTER UNE FONCTION PERMETTANT D'INCREMENTER L'ID
+            tournamentData = {"ID":1 ,"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":1}
+            self.tournamentTable.insert(tournamentData)
+
+            """ETAPE 1 DE SAUVEGARDE"""
+            print(self.Load_state)
+            print(self.Save_step)
+        
+        if (self.Load_state == True and self.Save_step == 1) or self.Load_state == False:
+            
+            """DONNEES JOUEURS"""
+            # index = self.playerPool.all()[0] pour index?
+            i = 0
+            while len(self.playerList) < 8:
+                i += 1
+                print("Voulez-vous :")
+                print("==============================")
+                print("1. Ajouter un joueur déjà éxistant")
+                print("2. Créer un nouveau joueur (Manuel)")
+                print("3. Créer un nouveau joueur (Automatique)")
+                
+                wrongChoice = True
+                while wrongChoice == True:
+                    userChoice = input("Que voulez-vous faire? ")
+                    if userChoice == "1":
+                        wrongChoice = False
+                    elif userChoice == "2":
+                        wrongChoice = False
+                        self.creationPlayer()
+                    elif userChoice == "3":
+                        wrongChoice = False
+                        playerName = "Name" + str(i)
+                        playerSurname = "Surname" + str(i)
+                        playerBirthdate = "BDate" + str(i)
+                        playerGender = "Gender" + str(i)
+                        playerRank = random.randint(0, 1000)
+                        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+                        self.playerPool.insert(playerData)
+                    else:
+                        wrongChoice = True
+                        print("Veuillez entrer un entrée valide")
+
+                self.playerList.append(i)
+                continue
+
+            print(self.playerList)
+            self.nbPlayers = len(self.playerList)
+            self.middleNumberPlayers = int(self.nbPlayers/2)
+            self.first_halfPlayers = self.playerList[:self.middleNumberPlayers]
+            self.second_halfPlayers = self.playerList[self.middleNumberPlayers:]
+            print(self.nbPlayers)
+            print(self.middleNumberPlayers)
+            print(self.first_halfPlayers)
+            print(self.second_halfPlayers)
+
+            tournamentData = {"players": self.playerList, "matchs":self.totalMatch, "Save_step":2}
+            self.tournamentTable.update(tournamentData)
+
+            userChoice = input("Avant Round 1")
+
+
+            """ETAPE 2 DE SAUVEGARDE"""
+        if (self.Load_state == True and self.Save_step == 2) or self.Load_state == False:
+
+            """ROUND 1"""
+            print()
+            print("ROUND 1 :")
+
+            for i in range(self.middleNumberPlayers):
+                randomScore = [0, 0.5, 1]
+                x = randomScore[randint(0, 2)]
+                if x == 0:
+                    y = 1
+                elif x == 0.5:
+                    y = 0.5
                 else:
-                    wrongChoice = True
-                    print("Veuillez entrer un entrée valide")
+                    y = 0
+                self.totalMatch.append(([self.first_halfPlayers[i], x],
+                                        [self.second_halfPlayers[i], y]))
 
-            self.playerList.append(i)
-            continue
+            """TRI DES JOUEURS PAR RANG ET PAR POINTS"""
+            for i in range(self.middleNumberPlayers):
+                self.playersToSort.append(self.totalMatch[i][0])
+                self.playersToSort.append(self.totalMatch[i][1])
 
-        print(self.playerList)
-        self.nbPlayers = len(self.playerList)
-        self.middleNumberPlayers = int(self.nbPlayers/2)
-        self.first_halfPlayers = self.playerList[:self.middleNumberPlayers]
-        self.second_halfPlayers = self.playerList[self.middleNumberPlayers:]
-        print(self.nbPlayers)
-        print(self.middleNumberPlayers)
-        print(self.first_halfPlayers)
-        print(self.second_halfPlayers)
+            # Tri des joueurs par rang
+            self.playersToSort.sort()
 
-        tournamentData = {"Save_step":1}
-        self.tournamentTable.update(tournamentData)
+            # Tri des joueurs par rang et par score
+            self.playersToSort.sort(key=self.getScore, reverse=True)
+            self.playersSorted = self.playersToSort
 
-        """ETAPE 1 DE SAUVEGARDE"""
-        # if Load_state == True and Save_step == 1:
+            print(self.playersSorted)
 
-        """ROUND 1"""
-        print()
-        print("ROUND 1 :")
+            tournamentData = {"matchs":self.totalMatch, "Save_step":3}
+            self.tournamentTable.update(tournamentData)
 
-        for i in range(self.middleNumberPlayers):
-            randomScore = [0, 0.5, 1]
-            x = randomScore[randint(0, 2)]
-            if x == 0:
-                y = 1
-            elif x == 0.5:
-                y = 0.5
-            else:
-                y = 0
-            self.totalMatch.append(([self.first_halfPlayers[i], x],
-                                    [self.second_halfPlayers[i], y]))
+            userChoice = input("Avant Round 2")
 
-        """TRI DES JOUEURS PAR RANG ET PAR POINTS"""
-        for i in range(self.middleNumberPlayers):
-            self.playersToSort.append(self.totalMatch[i][0])
-            self.playersToSort.append(self.totalMatch[i][1])
+            """ETAPE 3 DE SAUVEGARDE"""
+        if (self.Load_state == True and self.Save_step == 3) or self.Load_state == False:
 
-        # Tri des joueurs par rang
-        self.playersToSort.sort()
+            """ROUND 2"""
+            print()
+            print("ROUND 2 :")
 
-        # Tri des joueurs par rang et par score
-        self.playersToSort.sort(key=self.getScore, reverse=True)
-        self.playersSorted = self.playersToSort
+            self.getPlayerMatchs()
 
-        print(self.playersSorted)
+            print(self.playersSorted)
 
-        tournamentData = {"Save_step":2}
-        self.tournamentTable.update(tournamentData)
+            tournamentData = {"matchs":self.totalMatch, "Save_step":4}
+            self.tournamentTable.update(tournamentData)
 
-        """ETAPE 2 DE SAUVEGARDE"""
-        # if Load_state == True and Save_step == 2:
 
-        """ROUND 2"""
-        print()
-        print("ROUND 2 :")
 
-        self.getPlayerMatchs()
+            """ETAPE 4 DE SAUVEGARDE"""
+        if (self.Load_state == True and self.Save_step == 4) or self.Load_state == False:
 
-        print(self.playersSorted)
+            """ROUND 3"""
+            print()
+            print("ROUND 3 :")
 
-        tournamentData = {"Save_step":3}
-        self.tournamentTable.update(tournamentData)
+            self.getPlayerMatchs()
 
-        """ETAPE 3 DE SAUVEGARDE"""
-        # if Load_state == True and Save_step == 3:
+            print(self.playersSorted)
 
-        """ROUND 3"""
-        print()
-        print("ROUND 3 :")
+            tournamentData = {"matchs":self.totalMatch, "Save_step":5}
+            self.tournamentTable.update(tournamentData)
 
-        self.getPlayerMatchs()
+            """ETAPE 5 DE SAUVEGARDE"""
+        if (self.Load_state == True and self.Save_step == 5) or self.Load_state == False:
 
-        print(self.playersSorted)
+            """ROUND 4"""
+            print()
+            print("ROUND 4 :")
 
-        tournamentData = {"Save_step":4}
-        self.tournamentTable.update(tournamentData)
+            self.getPlayerMatchs()
 
-        """ETAPE 4 DE SAUVEGARDE"""
-        # if Load_state == True and Save_step == 4:
+            print()
+            print("Score final :")
+            print(self.playersSorted)
 
-        """ROUND 4"""
-        print()
-        print("ROUND 4 :")
+            print("Matchs joués :")
+            print("Round 1 :")
+            print(self.totalMatch[:4])
+            print("Round 2 :")
+            print(self.totalMatch[4:8])
+            print("Round 3 :")
+            print(self.totalMatch[8:-4])
+            print("Round 4 :")
+            print(self.totalMatch[-4:])
 
-        self.getPlayerMatchs()
 
-        print()
-        print("Score final :")
-        print(self.playersSorted)
-
-        print("Matchs joués :")
-        print("Round 1 :")
-        print(self.totalMatch[:4])
-        print("Round 2 :")
-        print(self.totalMatch[4:8])
-        print("Round 3 :")
-        print(self.totalMatch[8:-4])
-        print("Round 4 :")
-        print(self.totalMatch[-4:])
-
-        tournamentData = {"matchs":self.totalMatch}
-        self.tournamentTable.update(tournamentData)
+            tournamentData = {"matchs":self.totalMatch, "Save_step":6}
+            self.tournamentTable.update(tournamentData)
 
     # création ou séléction des joueurs
     def playerChoice(self):
@@ -835,31 +839,32 @@ class ReportAllPlayerController:
             continue
 
     def player_SortName(self):
-        # NE FONCTIONNE PAS
         playerPool = self.playerPool.all()
-        print(playerPool)
-        sorted_list = sorted(playerPool.items(), key=lambda item:item[5])
+        sorted_list = sorted(playerPool, key=lambda item:item["playerName"])
         print(sorted_list)
-        for datas in playerPool:
-            print(datas)
+        for datas in sorted_list:
+            print("ID : " + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                  + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
+                  + str(datas["playerRank"]))
 
     def player_SortRank(self):
-        # NE FONCTIONNE PAS
         playerPool = self.playerPool.all()
-        # print(playerPool)
         sorted_list = sorted(playerPool, key=lambda item:item["playerRank"])
         print(sorted_list)
-        for datas in playerPool:
-            print(datas)
+        for datas in sorted_list:
+            print("ID : " + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                  + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
+                  + str(datas["playerRank"]))
 
     """
     xxxx Liste de tous les acteurs :
     xxxxxx par ordre alphabétique ;
     xxxxxx par classement.
+    AJOUTER ID POUR FAIRE CETTE PARTIE
     Liste de tous les joueurs d'un tournoi :
     par ordre alphabétique ;
     par classement.
-    Liste de tous les tournois.
+    xxxx Liste de tous les tournois.
     Liste de tous les tours d'un tournoi.
     Liste de tous les matchs d'un tournoi.
     """
@@ -881,8 +886,9 @@ class ReportTournamentController:
     def creationReport(self):
 
         for datas in self.tournament_Table.all():
-            print(datas)
-
+            print("ID : " + ", Nom : " + str(datas["Name"]) + ", Lieu : " + str(datas["Location"]) + ", Date : "
+                  + str(datas["Date"]) + ", Nombre de rounds : " + str(datas["Round"]) + ", Type de temps : "
+                  + str(datas["Time"]) + ", Description : " + str(datas["Description"]))
 
         print("Voulez-vous :")
         print("==============================")
@@ -895,9 +901,15 @@ class ReportTournamentController:
             userChoice = input("Que voulez-vous faire? ")
             if userChoice == "1":
                 wrongChoice = False
+                tournamentChoice = input("Séléctionnez le tournoi :")
+                user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
+                print(user_Choice)
                 self.player_SortName()
             elif userChoice == "2":
                 wrongChoice = False
+                tournamentChoice = input("Séléctionnez le tournoi :")
+                user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
+                print(user_Choice)
                 self.player_SortRank()
             elif userChoice == "3":
                 wrongChoice = False
