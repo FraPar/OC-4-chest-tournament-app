@@ -5,7 +5,7 @@ from random import randint, random
 import random 
 
 # VOIR POUR LA REPRISE D'UN MATCH EN COURS (State depuis une class)
-# PROBLEME D'INDEXAGE DES TOURNOIS + JOUEURS
+# PROBLEME D'INDEXAGE DES TOURNOIS + JOUEURS (ID)
 # TRI DES JOUEURS PAR ALPHABET ET RANG
 # TRI DES JOUEURS PAR RANG LORS D'UN TOURNOI
 
@@ -36,13 +36,20 @@ class HomeController:
             # mettre la version création automatique de tournoi
             return AutomaticTournamentCreationController()
         elif next_action == "2":
+            Load_state = False
             return ManualTournamentCreationController()
+            # return ManualTournamentCreationController(Load_state)
         elif next_action == "3":
             return PlayerMenuController()
         elif next_action == "4":
             return ReportMenuController()
         elif next_action == "5":
             # mettre la reprise de tournoi en cours (pas encore mise en place)
+            Load_state = True
+
+            return ManualTournamentCreationController()
+            # return ManualTournamentCreationController(Load_state)
+
             pass
         elif next_action == "6":
             return EndController()
@@ -350,9 +357,13 @@ class ManualRoundCreationController:
     """
 
     def __init__(self):
+    # def __init__(self, Load_state):
         self.db = TinyDB('db.json')
 
         # mettre les variables avec .self et les fonctions en self.
+
+        # variable de chargement de tournoi
+        # self.Load_state = Load_state
 
         # --- DEFINITION DES TABLES EN BASE DE DONNEES --- #
         self.tournamentTable = self.db.table('tournament_table')
@@ -394,7 +405,7 @@ class ManualRoundCreationController:
         tournamentTime = input("Entrez le temps du tournoi : ")
         tournamentDescription = input("Entrez la description du tournoi : ")
         #tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Players":{'Player1':[], 'Player2':{}, 'Player3':{}, 'Player4':{}, 'Player5':{}, 'Player6':{}, 'Player7':{}, 'Player8':{}}, "Time":tournamentTime, "Description":tournamentDescription}
-        tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":0}
+        tournamentData = {"ID":1 ,"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":0}
         self.tournamentTable.insert(tournamentData)
 
         """ETAPE 0 DE SAUVEGARDE"""
@@ -825,19 +836,20 @@ class ReportAllPlayerController:
 
     def player_SortName(self):
         # NE FONCTIONNE PAS
-        playerPool = self.playerPool.all()[0]
+        playerPool = self.playerPool.all()
         print(playerPool)
-        print(playerPool[1].items())
-        sorted_list = sorted(playerPool[1].items(), key=lambda x: x[1])
-        for datas in sorted_list:
+        sorted_list = sorted(playerPool.items(), key=lambda item:item[5])
+        print(sorted_list)
+        for datas in playerPool:
             print(datas)
 
     def player_SortRank(self):
         # NE FONCTIONNE PAS
-        def sort_Rank(elem):
-            return elem[4]
-        sorted_list = sorted(self.playerPool.all(), key=sort_Rank)
-        for datas in sorted_list:
+        playerPool = self.playerPool.all()
+        # print(playerPool)
+        sorted_list = sorted(playerPool, key=lambda item:item["playerRank"])
+        print(sorted_list)
+        for datas in playerPool:
             print(datas)
 
     """
