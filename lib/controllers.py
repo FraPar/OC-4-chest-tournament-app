@@ -4,10 +4,9 @@ from tinydb import TinyDB, where
 from random import randint, random
 import random 
 
-# VOIR POUR LA REPRISE D'UN MATCH EN COURS (State depuis une class)
+# VOIR POUR LA REPRISE D'UN MATCH EN COURS (State depuis une class, puis reprise des données de la bdd)
 # PROBLEME D'INDEXAGE DES TOURNOIS + JOUEURS (ID)
-# TRI DES JOUEURS PAR ALPHABET ET RANG
-# TRI DES JOUEURS PAR RANG LORS D'UN TOURNOI
+# Update sur l'ensemble des tournois à régler !!
 
 class ApplicationController:
     """Représente l'application elle-même et permet de la démarrer."""
@@ -904,14 +903,27 @@ class ReportTournamentController:
                 wrongChoice = False
                 tournamentChoice = input("Séléctionnez le tournoi :")
                 user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
+                print("")
                 print("ID : " + ", Nom : " + str(user_Choice[0]["Name"]) + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : "
                     + str(user_Choice[0]["Date"]) + ", Nombre de rounds : " + str(user_Choice[0]["Round"]) + ", Type de temps : "
                     + str(user_Choice[0]["Time"]) + ", Description : " + str(user_Choice[0]["Description"]))
                 if user_Choice[0]["Save_step"] >= 3: 
                     print("Joueurs : " + str(user_Choice[0]["players"]))
-                    print("Matchs : " + str(user_Choice[0]["matchs"]))
-                else:
-                    print("Aucun match n'à été joué pour le moment")
+                    print("")
+                    print("Matchs joués :")
+                    print("Round 1 :")
+                    print(str(user_Choice[0]["matchs"][:4]))
+                if user_Choice[0]["Save_step"] >= 4: 
+                    print("Round 2 :")
+                    print(str(user_Choice[0]["matchs"][4:8]))
+                if user_Choice[0]["Save_step"] >= 5: 
+                    print("Round 3 :")
+                    print(str(user_Choice[0]["matchs"][8:-4]))
+                if user_Choice[0]["Save_step"] >= 6: 
+                    print("Round 4 :")
+                    print(str(user_Choice[0]["matchs"][-4:]))
+                print("")
+
                 
             elif userChoice == "2":
                 wrongChoice = False
