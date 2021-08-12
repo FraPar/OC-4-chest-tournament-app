@@ -568,7 +568,7 @@ class ManualRoundCreationController:
         playerBirthdate = input("Entrez la date de naissance du joueur : ")
         playerGender = input("Entrez le genre du joueur : ")
         playerRank = input("Entrez le rang du joueur : ")
-        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":int(playerRank)}
 
         self.playerPool.insert(playerData)
 
@@ -768,7 +768,7 @@ class PlayerCreationController:
         playerBirthdate = input("Entrez la date de naissance du joueur : ")
         playerGender = input("Entrez le genre du joueur : ")
         playerRank = input("Entrez le rang du joueur : ")
-        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":int(playerRank)}
 
         self.playerPool.insert(playerData)
 
@@ -856,16 +856,10 @@ class ReportAllPlayerController:
                   + str(datas["playerRank"]))
 
     """
-    xxxx Liste de tous les acteurs :
-    xxxxxx par ordre alphabétique ;
-    xxxxxx par classement.
     AJOUTER ID POUR FAIRE CETTE PARTIE
     Liste de tous les joueurs d'un tournoi :
     par ordre alphabétique ;
     par classement.
-    xxxx Liste de tous les tournois.
-    Liste de tous les tours d'un tournoi.
-    Liste de tous les matchs d'un tournoi.
     """
 
 
@@ -929,7 +923,14 @@ class ReportTournamentController:
                 wrongChoice = False
                 tournamentChoice = input("Séléctionnez le tournoi :")
                 user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
-                print(user_Choice)
+                print("")
+                print("ID : " + ", Nom : " + str(user_Choice[0]["Name"]) + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : "
+                    + str(user_Choice[0]["Date"]) + ", Nombre de rounds : " + str(user_Choice[0]["Round"]) + ", Type de temps : "
+                    + str(user_Choice[0]["Time"]) + ", Description : " + str(user_Choice[0]["Description"]))
+                print("Joueurs : " + str(user_Choice[0]["players"]))
+                print("")
+                print("Matchs joués :")
+                print(str(user_Choice[0]["matchs"]))
             elif userChoice == "3":
                 wrongChoice = False
                 return EndController()
