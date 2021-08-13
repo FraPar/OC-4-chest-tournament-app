@@ -6,7 +6,6 @@ import random
 
 # VOIR POUR LA REPRISE D'UN MATCH EN COURS (State depuis une class, puis reprise des données de la bdd)
 # PROBLEME D'INDEXAGE DES TOURNOIS + JOUEURS (ID)
-# Update sur l'ensemble des tournois à régler !!
 
 class ApplicationController:
     """Représente l'application elle-même et permet de la démarrer."""
@@ -461,7 +460,7 @@ class ManualRoundCreationController:
                         self.playerPool.insert(playerData)
                     else:
                         wrongChoice = True
-                        print("Veuillez entrer un entrée valide")
+                        print("Veuillez saisir un entrée valide")
 
                 self.playerListToSort.append([(self.last_index),self.playerRank])
                 self.playerList.append(i)
@@ -885,7 +884,7 @@ class ReportAllPlayerController:
                 return EndController()
             else:
                 wrongChoice = True
-                print("Veuillez entrer un entrée valide")
+                print("Veuillez saisir un entrée valide")
             continue
 
     def player_SortName(self):
@@ -1022,7 +1021,7 @@ class ReportTournamentController:
                                 + str(datas["playerRank"]))
                     else:
                         wrongChoice = True
-                        print("Veuillez entrer un entrée valide")
+                        print("Veuillez saisir un entrée valide")
                     continue
 
             elif userChoice == "4":
@@ -1030,7 +1029,8 @@ class ReportTournamentController:
                 return EndController()
             else:
                 wrongChoice = True
-                print("Veuillez entrer un entrée valide")
+                print("Veuillez saisir un entrée valide")
+
             continue
 
 
