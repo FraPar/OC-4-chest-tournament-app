@@ -5,7 +5,6 @@ from random import randint, random
 import random 
 
 # VOIR POUR LA REPRISE D'UN MATCH EN COURS (State depuis une class, puis reprise des données de la bdd)
-# PROBLEME D'INDEXAGE DES TOURNOIS + JOUEURS (ID)
 
 class ApplicationController:
     """Représente l'application elle-même et permet de la démarrer."""
@@ -342,12 +341,9 @@ class ManualRoundCreationController:
     def __init__(self, Load_state, Save_step):
         self.db = TinyDB('db.json')
 
-        # mettre les variables avec .self et les fonctions en self.
-
         # variable de chargement de tournoi
         self.Load_state = Load_state
         self.Save_step = Save_step
-
 
         # --- DEFINITION DES TABLES EN BASE DE DONNEES --- #
         self.tournamentTable = self.db.table('tournament_table')
@@ -373,14 +369,9 @@ class ManualRoundCreationController:
         self.playerRank = 0
         self.playerMatch = []
         self.totalMatch = []
-
-        # Tri des joueurs
         self.playersToSort = []
-
         self.match = []
-
         self.matchToPlay = []
-
         self.playerOrder = []
 
     def run(self):
@@ -466,26 +457,17 @@ class ManualRoundCreationController:
                 self.playerList.append(i)
                 continue
 
-            print(self.playerListToSort)
             playerListSorted = sorted(self.playerListToSort, key=lambda item:item[1], reverse = True)
-            print(playerListSorted)
 
             i = 0
             for datas in playerListSorted:
                 i += 1
-                print(datas)
                 self.playerListByRank.append((i, datas[0],datas[1]))
-                print(self.playerListByRank)
 
-            print(self.playerList)
             self.nbPlayers = len(self.playerList)
             self.middleNumberPlayers = int(self.nbPlayers/2)
             self.first_halfPlayers = self.playerList[:self.middleNumberPlayers]
             self.second_halfPlayers = self.playerList[self.middleNumberPlayers:]
-            print(self.nbPlayers)
-            print(self.middleNumberPlayers)
-            print(self.first_halfPlayers)
-            print(self.second_halfPlayers)
 
             tournamentData = {"players": self.playerListByRank, "Save_step":2}
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
@@ -565,20 +547,7 @@ class ManualRoundCreationController:
 
             self.getPlayerMatchs()
 
-            print()
-            print("Score final :")
             print(self.playersSorted)
-
-            print("Matchs joués :")
-            print("Round 1 :")
-            print(self.totalMatch[:4])
-            print("Round 2 :")
-            print(self.totalMatch[4:8])
-            print("Round 3 :")
-            print(self.totalMatch[8:-4])
-            print("Round 4 :")
-            print(self.totalMatch[-4:])
-
 
             tournamentData = {"matchs":self.totalMatch, "Save_step":6}
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
@@ -653,8 +622,6 @@ class ManualRoundCreationController:
                 # on boucle pour connaître son adversaire
                 elif player2 == players:
                     playedMatchs.append(player1)
-            print("Match joués par le Joueur " + str(players)
-                  + " : " + str(playedMatchs))
             # on appelle la fonction permettant de mettre
             # un adversaire face à un autre
             self.sortMatch(playedMatchs, players)
@@ -864,8 +831,7 @@ class ReportAllPlayerController:
         print("==============================")
         print("1. Trier l'ensemble par ordre Alphabétique")
         print("2. Trier l'ensemble par Rang")
-        print("3. ****************Test ID**********************")
-        print("4. Retourner au menu")
+        print("3. Retourner au menu")
         
         wrongChoice = True
         while wrongChoice == True:
@@ -877,9 +843,6 @@ class ReportAllPlayerController:
                 wrongChoice = False
                 self.player_SortRank()
             elif userChoice == "3":
-                wrongChoice = False
-                self.player_TestId()
-            elif userChoice == "4":
                 wrongChoice = False
                 return EndController()
             else:
@@ -903,22 +866,6 @@ class ReportAllPlayerController:
                   + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
                   + str(datas["playerRank"]))
 
-    def player_TestId(self):
-        playerPool = self.playerPool.all()
-        sorted_list = sorted(playerPool, key=lambda item:item["Player_Id"])
-        print(list(sorted_list)[-1]["Player_Id"])
-        for datas in sorted_list:
-            print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
-                  + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
-                  + str(datas["playerRank"]))
-
-    """
-    AJOUTER ID POUR FAIRE CETTE PARTIE
-    Liste de tous les joueurs d'un tournoi :
-    par ordre alphabétique ;
-    par classement.
-    """
-
 
 class ReportTournamentController:
     """Contrôleur responsable de gérer la création d'un nouveau
@@ -929,7 +876,7 @@ class ReportTournamentController:
         self.db = TinyDB('db.json')
         self.tournamentTable = self.db.table('tournament_table')
         self.playerPool = self.db.table('player_pool')
-
+        self.playerInTournament = []
 
     def run(self):
         self.creationReport()
@@ -994,6 +941,8 @@ class ReportTournamentController:
                 wrongChoice = False
                 tournamentChoice = int(input("Séléctionnez le tournoi (ID) :"))
                 user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
+                for datas in user_Choice[0]["players"]:
+                    self.playerInTournament.append(self.playerPool.search(where("Player_Id") == datas[1])[0])
 
                 print("Voulez-vous :")
                 print("==============================")
@@ -1005,16 +954,14 @@ class ReportTournamentController:
                     userChoice = input("Que voulez-vous faire? ")
                     if userChoice == "1":
                         wrongChoice = False
-                        playerPool = self.playerPool.all()
-                        sorted_list = sorted(playerPool, key=lambda item:item["playerName"])
+                        sorted_list = sorted(self.playerInTournament, key=lambda item:item["playerName"])
                         for datas in sorted_list:
                             print("ID : " +  str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
                                 + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
                                 + str(datas["playerRank"]))
                     elif userChoice == "2":
                         wrongChoice = False
-                        playerPool = self.playerPool.all()
-                        sorted_list = sorted(playerPool, key=lambda item:item["playerRank"])
+                        sorted_list = sorted(self.playerInTournament, key=lambda item:item["playerRank"])
                         for datas in sorted_list:
                             print("ID : " +  str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
                                 + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
