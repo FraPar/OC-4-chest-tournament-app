@@ -1,6 +1,6 @@
 import views
 
-from tinydb import TinyDB, where
+from tinydb import TinyDB, where, Query
 from random import randint, random
 import random 
 
@@ -341,7 +341,6 @@ class ManualRoundCreationController:
     """
 
     def __init__(self, Load_state, Save_step):
-    # def __init__(self, Load_state):
         self.db = TinyDB('db.json')
 
         # mettre les variables avec .self et les fonctions en self.
@@ -358,6 +357,8 @@ class ManualRoundCreationController:
 
         """CREATION DE LA LISTE DES JOUEURS"""
         self.playerList = []
+        self.playerListToSort = []
+        self.playerListByRank = []
 
         """NOMBRE DE JOUEURS DANS LA PARTIE"""
         self.nbPlayers = 0
@@ -368,6 +369,9 @@ class ManualRoundCreationController:
         self.second_halfPlayers = 0
 
         """Définition des variables"""
+        self.tournament_index = 0
+        self.last_index = 0
+        self.playerRank = 0
         self.playerMatch = []
         self.totalMatch = []
 
@@ -397,8 +401,18 @@ class ManualRoundCreationController:
             #tournamentData = {"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Players":{'Player1':[], 'Player2':{}, 'Player3':{}, 'Player4':{}, 'Player5':{}, 'Player6':{}, 'Player7':{}, 'Player8':{}}, "Time":tournamentTime, "Description":tournamentDescription}
             
             # AJOUTER UNE FONCTION PERMETTANT D'INCREMENTER L'ID
-            tournamentData = {"ID":1 ,"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":1}
+
+            if len(self.tournamentTable.all()) == 0:
+                self.last_index = 0
+            else:
+                tournamentTable = self.tournamentTable.all()
+                sorted_list = sorted(tournamentTable, key=lambda item:item["Tournament_Id"])
+                print(list(sorted_list)[-1]["Tournament_Id"])
+                self.last_index = list(sorted_list)[-1]["Tournament_Id"] + 1
+
+            tournamentData = {"Tournament_Id":self.last_index ,"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":1}
             self.tournamentTable.insert(tournamentData)
+            self.tournament_index = self.last_index
 
             """ETAPE 1 DE SAUVEGARDE"""
             print(self.Load_state)
@@ -409,7 +423,8 @@ class ManualRoundCreationController:
             """DONNEES JOUEURS"""
             # index = self.playerPool.all()[0] pour index?
             i = 0
-            while len(self.playerList) < 8:
+            # self.playerList
+            while len(self.playerListToSort) < 8:
                 i += 1
                 print("Voulez-vous :")
                 print("==============================")
@@ -422,6 +437,7 @@ class ManualRoundCreationController:
                     userChoice = input("Que voulez-vous faire? ")
                     if userChoice == "1":
                         wrongChoice = False
+                        self.playerChoice()
                     elif userChoice == "2":
                         wrongChoice = False
                         self.creationPlayer()
@@ -431,15 +447,36 @@ class ManualRoundCreationController:
                         playerSurname = "Surname" + str(i)
                         playerBirthdate = "BDate" + str(i)
                         playerGender = "Gender" + str(i)
-                        playerRank = random.randint(0, 1000)
-                        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":playerRank}
+
+                        if len(self.playerPool.all()) == 0:
+                            self.last_index = 0
+                        else:
+                            playerPool = self.playerPool.all()
+                            sorted_list = sorted(playerPool, key=lambda item:item["Player_Id"])
+                            print(list(sorted_list)[-1]["Player_Id"])
+                            self.last_index = list(sorted_list)[-1]["Player_Id"] + 1
+
+                        self.playerRank = random.randint(0, 1000)
+                        playerData = {"Player_Id": self.last_index, "playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":self.playerRank}
                         self.playerPool.insert(playerData)
                     else:
                         wrongChoice = True
                         print("Veuillez entrer un entrée valide")
 
+                self.playerListToSort.append([(self.last_index),self.playerRank])
                 self.playerList.append(i)
                 continue
+
+            print(self.playerListToSort)
+            playerListSorted = sorted(self.playerListToSort, key=lambda item:item[1], reverse = True)
+            print(playerListSorted)
+
+            i = 0
+            for datas in playerListSorted:
+                i += 1
+                print(datas)
+                self.playerListByRank.append((i, datas[0],datas[1]))
+                print(self.playerListByRank)
 
             print(self.playerList)
             self.nbPlayers = len(self.playerList)
@@ -451,11 +488,8 @@ class ManualRoundCreationController:
             print(self.first_halfPlayers)
             print(self.second_halfPlayers)
 
-            tournamentData = {"players": self.playerList, "matchs":self.totalMatch, "Save_step":2}
-            self.tournamentTable.update(tournamentData)
-
-            userChoice = input("Avant Round 1")
-
+            tournamentData = {"players": self.playerListByRank, "Save_step":2}
+            self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 2 DE SAUVEGARDE"""
         if (self.Load_state == True and self.Save_step == 2) or self.Load_state == False:
@@ -490,10 +524,8 @@ class ManualRoundCreationController:
 
             print(self.playersSorted)
 
-            tournamentData = {"matchs":self.totalMatch, "Save_step":3}
-            self.tournamentTable.update(tournamentData)
-
-            userChoice = input("Avant Round 2")
+            tournamentData = {"matchs": self.totalMatch, "Save_step":3}
+            self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 3 DE SAUVEGARDE"""
         if (self.Load_state == True and self.Save_step == 3) or self.Load_state == False:
@@ -507,7 +539,7 @@ class ManualRoundCreationController:
             print(self.playersSorted)
 
             tournamentData = {"matchs":self.totalMatch, "Save_step":4}
-            self.tournamentTable.update(tournamentData)
+            self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
 
 
@@ -523,7 +555,7 @@ class ManualRoundCreationController:
             print(self.playersSorted)
 
             tournamentData = {"matchs":self.totalMatch, "Save_step":5}
-            self.tournamentTable.update(tournamentData)
+            self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 5 DE SAUVEGARDE"""
         if (self.Load_state == True and self.Save_step == 5) or self.Load_state == False:
@@ -550,30 +582,36 @@ class ManualRoundCreationController:
 
 
             tournamentData = {"matchs":self.totalMatch, "Save_step":6}
-            self.tournamentTable.update(tournamentData)
+            self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
-    # création ou séléction des joueurs
+    # séléction des joueurs
     def playerChoice(self):
         for datas in self.playerPool.all():
-            print("Tournoi : " + datas.get('Name'))
-        tournamentChoice = input("Séléctionnez le tournoi :")
-        print(self.db.tables())
-        showTable = self.playerTable.search(where("Name") == tournamentChoice)
-        print(showTable)
-        pass
+            print("ID :" + str(datas.get('Player_Id')) + " , Joueur : " + str(datas.get('playerName')))
+        playerChoice = input("Séléctionnez l'ID du joueur :")
+        playerId = self.playerPool.search(where("Player_Id") == int(playerChoice))[0]
+        self.playerRank = playerId["playerRank"]
+        self.last_index = playerId["Player_Id"]
 
+    # création des joueurs
     def creationPlayer(self):
         playerName = input("Entrez le nom du joueur : ")
         playerSurname = input("Entrez le prénom du joueur : ")
         playerBirthdate = input("Entrez la date de naissance du joueur : ")
         playerGender = input("Entrez le genre du joueur : ")
-        playerRank = input("Entrez le rang du joueur : ")
-        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":int(playerRank)}
+        self.playerRank = int(input("Entrez le rang du joueur : "))
+
+        if len(self.playerPool.all()) == 0:
+            self.last_index = 0
+        else:
+            playerPool = self.playerPool.all()
+            sorted_list = sorted(playerPool, key=lambda item:item["Player_Id"])
+            print(list(sorted_list)[-1]["Player_Id"])
+            self.last_index = list(sorted_list)[-1]["Player_Id"] + 1
+
+        playerData = {"Player_Id":self.last_index, "playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":self.playerRank}
 
         self.playerPool.insert(playerData)
-
-        for datas in self.playerPool.all():
-            print(datas)
 
     # fonction globale permettant d'assurer les rounds 2 à 4
     def getPlayerMatchs(self):
@@ -768,7 +806,16 @@ class PlayerCreationController:
         playerBirthdate = input("Entrez la date de naissance du joueur : ")
         playerGender = input("Entrez le genre du joueur : ")
         playerRank = input("Entrez le rang du joueur : ")
-        playerData = {"playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":int(playerRank)}
+
+        if len(self.playerPool.all()) == 0:
+            last_index = 0
+        else:
+            playerPool = self.playerPool.all()
+            sorted_list = sorted(playerPool, key=lambda item:item["Player_Id"])
+            print(list(sorted_list)[-1]["Player_Id"])
+            last_index = list(sorted_list)[-1]["Player_Id"] + 1
+
+        playerData = {"Player_Id": last_index, "playerName":playerName, "playerSurname":playerSurname, "playerBirthdate":playerBirthdate, "playerGender":playerGender, "playerRank":int(playerRank)}
 
         self.playerPool.insert(playerData)
 
@@ -818,7 +865,8 @@ class ReportAllPlayerController:
         print("==============================")
         print("1. Trier l'ensemble par ordre Alphabétique")
         print("2. Trier l'ensemble par Rang")
-        print("3. Retourner au menu")
+        print("3. ****************Test ID**********************")
+        print("4. Retourner au menu")
         
         wrongChoice = True
         while wrongChoice == True:
@@ -831,6 +879,9 @@ class ReportAllPlayerController:
                 self.player_SortRank()
             elif userChoice == "3":
                 wrongChoice = False
+                self.player_TestId()
+            elif userChoice == "4":
+                wrongChoice = False
                 return EndController()
             else:
                 wrongChoice = True
@@ -840,18 +891,25 @@ class ReportAllPlayerController:
     def player_SortName(self):
         playerPool = self.playerPool.all()
         sorted_list = sorted(playerPool, key=lambda item:item["playerName"])
-        print(sorted_list)
         for datas in sorted_list:
-            print("ID : " + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+            print("ID : " +  str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
                   + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
                   + str(datas["playerRank"]))
 
     def player_SortRank(self):
         playerPool = self.playerPool.all()
         sorted_list = sorted(playerPool, key=lambda item:item["playerRank"])
-        print(sorted_list)
         for datas in sorted_list:
-            print("ID : " + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+            print("ID : " +  str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                  + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
+                  + str(datas["playerRank"]))
+
+    def player_TestId(self):
+        playerPool = self.playerPool.all()
+        sorted_list = sorted(playerPool, key=lambda item:item["Player_Id"])
+        print(list(sorted_list)[-1]["Player_Id"])
+        for datas in sorted_list:
+            print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
                   + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
                   + str(datas["playerRank"]))
 
@@ -871,6 +929,7 @@ class ReportTournamentController:
     def __init__(self):
         self.db = TinyDB('db.json')
         self.tournamentTable = self.db.table('tournament_table')
+        self.playerPool = self.db.table('player_pool')
 
 
     def run(self):
@@ -880,7 +939,7 @@ class ReportTournamentController:
     def creationReport(self):
 
         for datas in self.tournamentTable.all():
-            print("ID : " + ", Nom : " + str(datas["Name"]) + ", Lieu : " + str(datas["Location"]) + ", Date : "
+            print("ID : " +  str(datas["Tournament_Id"]) + ", Nom : " + str(datas["Name"]) + ", Lieu : " + str(datas["Location"]) + ", Date : "
                   + str(datas["Date"]) + ", Nombre de rounds : " + str(datas["Round"]) + ", Type de temps : "
                   + str(datas["Time"]) + ", Description : " + str(datas["Description"]))
 
@@ -888,17 +947,18 @@ class ReportTournamentController:
         print("==============================")
         print("1. Voir les tours d'un tournoi spécifique")
         print("2. Voir les matchs d'un tournoi spécifique")
-        print("3. Retourner au menu")
+        print("3. Voir les joueurs d'un tournoi spécifique")
+        print("4. Retourner au menu")
         
         wrongChoice = True
         while wrongChoice == True:
             userChoice = input("Que voulez-vous faire? ")
             if userChoice == "1":
                 wrongChoice = False
-                tournamentChoice = input("Séléctionnez le tournoi :")
-                user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
+                tournamentChoice = int(input("Séléctionnez le tournoi (ID):"))
+                user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
                 print("")
-                print("ID : " + ", Nom : " + str(user_Choice[0]["Name"]) + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : "
+                print("ID : " +  str(user_Choice[0]["Tournament_Id"]) + ", Nom : " + str(user_Choice[0]["Name"]) + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : "
                     + str(user_Choice[0]["Date"]) + ", Nombre de rounds : " + str(user_Choice[0]["Round"]) + ", Type de temps : "
                     + str(user_Choice[0]["Time"]) + ", Description : " + str(user_Choice[0]["Description"]))
                 if user_Choice[0]["Save_step"] >= 3: 
@@ -917,21 +977,55 @@ class ReportTournamentController:
                     print("Round 4 :")
                     print(str(user_Choice[0]["matchs"][-4:]))
                 print("")
-
                 
             elif userChoice == "2":
                 wrongChoice = False
-                tournamentChoice = input("Séléctionnez le tournoi :")
-                user_Choice = self.tournamentTable.search(where("Name") == tournamentChoice)
+                tournamentChoice = int(input("Séléctionnez le tournoi (ID) :"))
+                user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
                 print("")
-                print("ID : " + ", Nom : " + str(user_Choice[0]["Name"]) + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : "
+                print("ID : " +  str(user_Choice[0]["Tournament_Id"]) + ", Nom : " + str(user_Choice[0]["Name"]) + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : "
                     + str(user_Choice[0]["Date"]) + ", Nombre de rounds : " + str(user_Choice[0]["Round"]) + ", Type de temps : "
                     + str(user_Choice[0]["Time"]) + ", Description : " + str(user_Choice[0]["Description"]))
                 print("Joueurs : " + str(user_Choice[0]["players"]))
                 print("")
                 print("Matchs joués :")
                 print(str(user_Choice[0]["matchs"]))
+
             elif userChoice == "3":
+                wrongChoice = False
+                tournamentChoice = int(input("Séléctionnez le tournoi (ID) :"))
+                user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
+
+                print("Voulez-vous :")
+                print("==============================")
+                print("1. Trier l'ensemble par ordre Alphabétique")
+                print("2. Trier l'ensemble par Rang")
+
+                wrongChoice = True
+                while wrongChoice == True:
+                    userChoice = input("Que voulez-vous faire? ")
+                    if userChoice == "1":
+                        wrongChoice = False
+                        playerPool = self.playerPool.all()
+                        sorted_list = sorted(playerPool, key=lambda item:item["playerName"])
+                        for datas in sorted_list:
+                            print("ID : " +  str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                                + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
+                                + str(datas["playerRank"]))
+                    elif userChoice == "2":
+                        wrongChoice = False
+                        playerPool = self.playerPool.all()
+                        sorted_list = sorted(playerPool, key=lambda item:item["playerRank"])
+                        for datas in sorted_list:
+                            print("ID : " +  str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"]) + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                                + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"]) + ", Classement : "
+                                + str(datas["playerRank"]))
+                    else:
+                        wrongChoice = True
+                        print("Veuillez entrer un entrée valide")
+                    continue
+
+            elif userChoice == "4":
                 wrongChoice = False
                 return EndController()
             else:
