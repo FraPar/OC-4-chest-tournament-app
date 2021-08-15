@@ -335,7 +335,7 @@ class AutomaticRoundCreationController:
 
 
 class ManualRoundCreationController:
-    """Mode Manuel à mettre en place
+    """Mode Manuel du tournoi
     """
 
     def __init__(self, Load_state, Save_step):
@@ -379,7 +379,8 @@ class ManualRoundCreationController:
         """ETAPE 0 DE SAUVEGARDE"""
         print(self.Load_state)
         print(self.Save_step)
-        if (self.Load_state == True and self.Save_step == 0) or self.Load_state == False:
+
+        if self.Load_state == False:
             tournamentName = input("Entrez le nom du tournoi : ")
             tournamentLocation = input("Entrez le lieu du tournoi : ")
             tournamentDate = input("Entrez la date du tournoi : ")
@@ -473,6 +474,9 @@ class ManualRoundCreationController:
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 2 DE SAUVEGARDE"""
+            print(self.Load_state)
+            print(self.Save_step)
+            
         if (self.Load_state == True and self.Save_step == 2) or self.Load_state == False:
 
             """ROUND 1"""
@@ -509,6 +513,9 @@ class ManualRoundCreationController:
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 3 DE SAUVEGARDE"""
+            print(self.Load_state)
+            print(self.Save_step)
+
         if (self.Load_state == True and self.Save_step == 3) or self.Load_state == False:
 
             """ROUND 2"""
@@ -525,6 +532,9 @@ class ManualRoundCreationController:
 
 
             """ETAPE 4 DE SAUVEGARDE"""
+            print(self.Load_state)
+            print(self.Save_step)
+
         if (self.Load_state == True and self.Save_step == 4) or self.Load_state == False:
 
             """ROUND 3"""
@@ -539,6 +549,9 @@ class ManualRoundCreationController:
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 5 DE SAUVEGARDE"""
+            print(self.Load_state)
+            print(self.Save_step)
+
         if (self.Load_state == True and self.Save_step == 5) or self.Load_state == False:
 
             """ROUND 4"""
@@ -974,6 +987,7 @@ class ReportTournamentController:
             elif userChoice == "4":
                 wrongChoice = False
                 return EndController()
+            
             else:
                 wrongChoice = True
                 print("Veuillez saisir un entrée valide")
