@@ -34,26 +34,82 @@ class HomeController:
         if next_action == "1":
             # mettre la version création automatique de tournoi
             return AutomaticTournamentCreationController()
+        
         elif next_action == "2":
             Load_state = False
             # return ManualTournamentCreationController()
             Save_step = 0
-            return ManualRoundCreationController(Load_state, Save_step)
+            middleNumberPlayers =0
+            first_halfPlayers = []
+            second_halfPlayers = []
+            totalMatch = []
+            playersSorted = []
+            match = []
+            playerList = []
+
+
+            if len(self.tournamentTable.all()) == 0:
+                last_index = 0
+            else:
+                tournamentTable = self.tournamentTable.all()
+                sorted_list = sorted(tournamentTable, key=lambda item:item["Tournament_Id"])
+                print(list(sorted_list)[-1]["Tournament_Id"])
+                last_index = list(sorted_list)[-1]["Tournament_Id"] + 1
+            
+            tournament_index = last_index
+            print("tournament_index")
+            print(tournament_index)
+
+            return ManualRoundCreationController(Load_state, Save_step, tournament_index, middleNumberPlayers, first_halfPlayers, second_halfPlayers, totalMatch, playersSorted, match, playerList)
+
         elif next_action == "3":
             return PlayerMenuController()
+        
         elif next_action == "4":
             return ReportMenuController()
+        
         elif next_action == "5":
-            Load_state = True
-            # return ManualTournamentCreationController()
+            if len(self.tournamentTable.all()) == 0:
+                print("Pas de tournois joués")
+            else:
+                Load_state = True
+                for datas in self.tournamentTable.all():
+                    print("Tournoi : " + str(datas.get('Tournament_Id')))
+                tournamentChoice = input("Séléctionnez le tournoi (ID):")
+                tournament_index = int(tournamentChoice)
+                this_tournament = self.tournamentTable.search(where("Tournament_Id") == tournament_index)[0]
+                Save_step = this_tournament["Save_step"]
+                middleNumberPlayers = 0
+                first_halfPlayers = []
+                second_halfPlayers = []
+                totalMatch = []
+                playersSorted = []
+                match = []
+                playerList = []
+                if Save_step >= 2:
+                    playerList = [1, 2, 3, 4, 5, 6, 7, 8]
+                    middleNumberPlayers = int(len(self.tournamentTable.search(where("Tournament_Id") == tournament_index)[0]["players"])/2)
+                    first_halfPlayers = playerList[:middleNumberPlayers]
+                    second_halfPlayers = playerList[middleNumberPlayers:]
+                
+                if Save_step >= 3:
+                    totalMatch = this_tournament["matchs"]
+                    match = this_tournament["matchs"][-4:]
+                    print("match")
+                    print(match)
+                    playersToSort = []
+                    for datas in match:
+                        playersToSort.append(datas[0])
+                        playersToSort.append(datas[1])
+                    # Tri des joueurs par rang
+                    playersToSort.sort()
+                    # Tri des joueurs par rang et par score
+                    playersToSort.sort(key=self.getScore, reverse=True)
+                    playersSorted = playersToSort
+                    print("playersSorted")
+                    print(playersSorted)
 
-            for datas in self.tournamentTable.all():
-                print("Tournoi : " + datas.get('Name'))
-            tournamentChoice = input("Séléctionnez le tournoi :")
-            Save_step = self.tournamentTable.search(where("Name") == tournamentChoice)[0]["Save_step"]
-            # print(Save_step[0]["Save_step"])
-            
-            return ManualRoundCreationController(Load_state, Save_step)
+                return ManualRoundCreationController(Load_state, Save_step, tournament_index, middleNumberPlayers, first_halfPlayers, second_halfPlayers, totalMatch, playersSorted, match, playerList)
 
         elif next_action == "6":
             return EndController()
@@ -61,6 +117,9 @@ class HomeController:
             self.view.notify_invalid_choice()
             return HomeController()
 
+    # permet le tri par rang et par score
+    def getScore(self, elem):
+        return elem[1]
 
 class AutomaticTournamentCreationController:
     """Contrôleur responsable de gérer le menu de création d'un
@@ -338,7 +397,7 @@ class ManualRoundCreationController:
     """Mode Manuel du tournoi
     """
 
-    def __init__(self, Load_state, Save_step):
+    def __init__(self, Load_state, Save_step, tournament_index, middleNumberPlayers, first_halfPlayers, second_halfPlayers, totalMatch, playersSorted, match, playerList):
         self.db = TinyDB('db.json')
 
         # variable de chargement de tournoi
@@ -351,7 +410,7 @@ class ManualRoundCreationController:
         self.playerTable = self.db.table('player_table')
 
         """CREATION DE LA LISTE DES JOUEURS"""
-        self.playerList = []
+        self.playerList = playerList
         self.playerListToSort = []
         self.playerListByRank = []
 
@@ -359,18 +418,20 @@ class ManualRoundCreationController:
         self.nbPlayers = 0
 
         """DEFINITION DE LA MOITIE SUPERIEUR ET INFERIEURE"""
-        self.middleNumberPlayers = 0
-        self.first_halfPlayers = 0
-        self.second_halfPlayers = 0
+        self.middleNumberPlayers = middleNumberPlayers
+        self.first_halfPlayers = first_halfPlayers
+        self.second_halfPlayers = second_halfPlayers
 
         """Définition des variables"""
-        self.tournament_index = 0
+        self.tournament_index = tournament_index
+        # self.tournament_index = 0
         self.last_index = 0
         self.playerRank = 0
         self.playerMatch = []
-        self.totalMatch = []
+        self.totalMatch = totalMatch
         self.playersToSort = []
-        self.match = []
+        self.playersSorted = playersSorted
+        self.match = match
         self.matchToPlay = []
         self.playerOrder = []
 
@@ -393,22 +454,16 @@ class ManualRoundCreationController:
             
             # AJOUTER UNE FONCTION PERMETTANT D'INCREMENTER L'ID
 
-            if len(self.tournamentTable.all()) == 0:
-                self.last_index = 0
-            else:
-                tournamentTable = self.tournamentTable.all()
-                sorted_list = sorted(tournamentTable, key=lambda item:item["Tournament_Id"])
-                print(list(sorted_list)[-1]["Tournament_Id"])
-                self.last_index = list(sorted_list)[-1]["Tournament_Id"] + 1
 
-            tournamentData = {"Tournament_Id":self.last_index ,"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":1}
+            self.Save_step = 1
+            tournamentData = {"Tournament_Id":self.tournament_index ,"Name":tournamentName, "Location":tournamentLocation, "Date":tournamentDate, "Round":tournamentRound, "Time":tournamentTime, "Description":tournamentDescription, "Save_step":self.Save_step}
             self.tournamentTable.insert(tournamentData)
-            self.tournament_index = self.last_index
 
             """ETAPE 1 DE SAUVEGARDE"""
             print(self.Load_state)
             print(self.Save_step)
         
+        etapes = input("Etape après Save 1")
         if (self.Load_state == True and self.Save_step == 1) or self.Load_state == False:
             
             """DONNEES JOUEURS"""
@@ -470,13 +525,15 @@ class ManualRoundCreationController:
             self.first_halfPlayers = self.playerList[:self.middleNumberPlayers]
             self.second_halfPlayers = self.playerList[self.middleNumberPlayers:]
 
-            tournamentData = {"players": self.playerListByRank, "Save_step":2}
+            self.Save_step = 2
+            tournamentData = {"players": self.playerListByRank, "Save_step": self.Save_step}
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 2 DE SAUVEGARDE"""
             print(self.Load_state)
             print(self.Save_step)
             
+        etapes = input("Etape après Save 2")
         if (self.Load_state == True and self.Save_step == 2) or self.Load_state == False:
 
             """ROUND 1"""
@@ -509,13 +566,15 @@ class ManualRoundCreationController:
 
             print(self.playersSorted)
 
-            tournamentData = {"matchs": self.totalMatch, "Save_step":3}
+            self.Save_step = 3
+            tournamentData = {"matchs": self.totalMatch, "Save_step":self.Save_step}
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 3 DE SAUVEGARDE"""
             print(self.Load_state)
             print(self.Save_step)
 
+        etapes = input("Etape après Save 3")
         if (self.Load_state == True and self.Save_step == 3) or self.Load_state == False:
 
             """ROUND 2"""
@@ -526,7 +585,8 @@ class ManualRoundCreationController:
 
             print(self.playersSorted)
 
-            tournamentData = {"matchs":self.totalMatch, "Save_step":4}
+            self.Save_step = 4
+            tournamentData = {"matchs": self.totalMatch, "Save_step":self.Save_step}
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
 
@@ -535,6 +595,7 @@ class ManualRoundCreationController:
             print(self.Load_state)
             print(self.Save_step)
 
+        etapes = input("Etape après Save 4")
         if (self.Load_state == True and self.Save_step == 4) or self.Load_state == False:
 
             """ROUND 3"""
@@ -545,13 +606,15 @@ class ManualRoundCreationController:
 
             print(self.playersSorted)
 
-            tournamentData = {"matchs":self.totalMatch, "Save_step":5}
+            self.Save_step = 5
+            tournamentData = {"matchs": self.totalMatch, "Save_step":self.Save_step}
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 5 DE SAUVEGARDE"""
             print(self.Load_state)
             print(self.Save_step)
 
+        etapes = input("Etape après Save 5")
         if (self.Load_state == True and self.Save_step == 5) or self.Load_state == False:
 
             """ROUND 4"""
@@ -562,7 +625,8 @@ class ManualRoundCreationController:
 
             print(self.playersSorted)
 
-            tournamentData = {"matchs":self.totalMatch, "Save_step":6}
+            self.Save_step = 6
+            tournamentData = {"matchs": self.totalMatch, "Save_step":self.Save_step}
             self.tournamentTable.update(tournamentData, Query().Tournament_Id == self.tournament_index)
 
     # séléction des joueurs
@@ -615,7 +679,7 @@ class ManualRoundCreationController:
         self.matchToAdd()
         self.sortPlayersByMatch()
         self.playMatch()
-        self.sortPlayersByScore(self.match)
+        self.sortPlayersByScore()
 
     # fonction permettant de connaître les matchs joués par notre joueur
     def matchPlayed(self):
@@ -719,6 +783,7 @@ class ManualRoundCreationController:
                 y = self.playersSorted[i+1][1]
             # on ajoute le tuple joueur / score au round actuel
             # puis au total des matchs
+            
             self.match.append(([self.playersSorted[i][0], x],
                                [self.playersSorted[i+1][0], y]))
             self.totalMatch.append(([self.playersSorted[i][0], x],
@@ -729,12 +794,14 @@ class ManualRoundCreationController:
         return elem[1]
 
     # on trie les joueurs par rapport à leur score et leur rang
-    def sortPlayersByScore(self, match):
+    def sortPlayersByScore(self):
         self.playersToSort.clear()
+        self.match = self.totalMatch[-4:]
+
         # on ajoute les tuples à la variable pour pouvoir trier l'ensemble
         for i in range(self.middleNumberPlayers):
-            self.playersToSort.append(match[i][0])
-            self.playersToSort.append(match[i][1])
+            self.playersToSort.append(self.match[i][0])
+            self.playersToSort.append(self.match[i][1])
 
         # Tri des joueurs par rang
         self.playersToSort.sort()
