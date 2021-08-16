@@ -255,16 +255,36 @@ class ManualRoundCreationController:
             print("ROUND 1 :")
 
             for i in range(self.middleNumberPlayers):
-                randomScore = [0, 0.5, 1]
-                x = randomScore[randint(0, 2)]
-                if x == 0:
-                    y = 1
-                elif x == 0.5:
-                    y = 0.5
+
+                """A REVOIR"""
+                print("Joueur " + str(self.first_halfPlayers[i]) + " contre Joueur " + str(self.second_halfPlayers[i]))
+                matchWinner = int(input("Entrez le numéro du gagnant (0 = égalité) : "))
+                scoreW = 1
+                scoreL = 0
+                if matchWinner == self.first_halfPlayers[i]:
+                    matchLoser = self.second_halfPlayers[i]
+                    print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                elif matchWinner == self.second_halfPlayers[i]:
+                    matchLoser = self.first_halfPlayers[i]
+                    print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                elif matchWinner == 0:
+                    scoreW = 0.5
+                    scoreL = 0.5
+                    matchWinner = self.first_halfPlayers[i]
+                    matchLoser = self.second_halfPlayers[i]
+                    print("Égalité entre le Joueur : " + str(self.first_halfPlayers[i]) + " et le Joueur : " + str(self.second_halfPlayers[i]))
                 else:
-                    y = 0
-                self.totalMatch.append(([self.first_halfPlayers[i], x],
-                                        [self.second_halfPlayers[i], y]))
+                    print("Tapez une saisie valide")
+
+                self.totalMatch.append(([matchWinner, scoreW], [matchLoser, scoreL]))
+                """A REVOIR"""
+                print("self.totalMatch")
+                print(self.totalMatch)
+
+            
+            print("self.totalMatch")
+            print(self.totalMatch)
+
 
             """TRI DES JOUEURS PAR RANG ET PAR POINTS"""
             for i in range(self.middleNumberPlayers):
