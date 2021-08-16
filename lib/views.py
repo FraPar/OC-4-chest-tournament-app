@@ -6,32 +6,11 @@ class HomeView:
         print(
             "Menu d'accueil\n"
             "==============\n"
-            "1. Créer un nouveau tournoi (automatique)\n"
-            "2. Créer un nouveau tournoi (manuel)\n"
-            "3. Créer un nouveau joueur (manuel)\n"
-            "4. Créer un nouveau rapport\n"
-            "5. Reprendre un tournoi\n"
-            "6. Quitter le programme\n"
-        )
-
-    def get_user_choice(self):
-        return input("Que voulez-vous faire ? ").lower()
-
-    def notify_invalid_choice(self):
-        print("Choix non valable !\n\n")
-
-
-class AutomaticTournamentCreationView:
-    """Vue responsable de l'affichage du menu de création de
-    tournoi automatique."""
-
-    def render(self):
-        print(
-            "Menu de création d'un nouveau tournoi (automatique)\n"
-            "==============================\n"
-            "1. lancer le tournoi automatique\n"
-            "2. retour à l'accueil\n"
-            "3. quitter le programme\n"
+            "1. Créer un nouveau tournoi (manuel)\n"
+            "2. Créer un nouveau joueur (manuel)\n"
+            "3. Créer un nouveau rapport\n"
+            "4. Reprendre un tournoi\n"
+            "5. Quitter le programme\n"
         )
 
     def get_user_choice(self):
