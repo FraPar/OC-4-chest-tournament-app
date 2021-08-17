@@ -256,35 +256,38 @@ class ManualRoundCreationController:
 
             for i in range(self.middleNumberPlayers):
 
-                """A REVOIR"""
-                print("Joueur " + str(self.first_halfPlayers[i]) + " contre Joueur " + str(self.second_halfPlayers[i]))
-                matchWinner = int(input("Entrez le numéro du gagnant (0 = égalité) : "))
-                scoreW = 1
-                scoreL = 0
-                if matchWinner == self.first_halfPlayers[i]:
-                    matchLoser = self.second_halfPlayers[i]
-                    print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
-                elif matchWinner == self.second_halfPlayers[i]:
-                    matchLoser = self.first_halfPlayers[i]
-                    print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
-                elif matchWinner == 0:
-                    scoreW = 0.5
-                    scoreL = 0.5
-                    matchWinner = self.first_halfPlayers[i]
-                    matchLoser = self.second_halfPlayers[i]
-                    print("Égalité entre le Joueur : " + str(self.first_halfPlayers[i]) + " et le Joueur : " + str(self.second_halfPlayers[i]))
-                else:
-                    print("Tapez une saisie valide")
+                wrongChoice = True
+                while wrongChoice == True:
+                    print("Joueur " + str(self.first_halfPlayers[i]) + " contre Joueur " + str(self.second_halfPlayers[i]))
+                    matchWinner = input("Entrez le numéro du gagnant (0 = égalité) : ")
+                    scoreW = 1
+                    scoreL = 0
 
-                self.totalMatch.append(([matchWinner, scoreW], [matchLoser, scoreL]))
-                """A REVOIR"""
-                print("self.totalMatch")
-                print(self.totalMatch)
+                    try:
+                        if int(matchWinner) == self.first_halfPlayers[i]:
+                            wrongChoice = False
+                            matchLoser = self.second_halfPlayers[i]
+                            print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                        elif int(matchWinner) == self.second_halfPlayers[i]:
+                            wrongChoice = False
+                            matchLoser = self.first_halfPlayers[i]
+                            print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                        elif int(matchWinner) == 0:
+                            wrongChoice = False
+                            scoreW = 0.5
+                            scoreL = 0.5
+                            matchWinner = self.first_halfPlayers[i]
+                            matchLoser = self.second_halfPlayers[i]
+                            print("Égalité entre le Joueur : " + str(self.first_halfPlayers[i]) + " et le Joueur : " + str(self.second_halfPlayers[i]))
+                        else:
+                            print("Tapez une saisie valide (1)")
+                            continue
 
-            
-            print("self.totalMatch")
-            print(self.totalMatch)
+                    except ValueError:
+                        print("Tapez une saisie valide (2)")
+                        continue
 
+                self.totalMatch.append(([int(matchWinner), scoreW], [int(matchLoser), scoreL]))
 
             """TRI DES JOUEURS PAR RANG ET PAR POINTS"""
             for i in range(self.middleNumberPlayers):
@@ -493,29 +496,44 @@ class ManualRoundCreationController:
     def playMatch(self):
         self.match.clear()
 
-        # génération aléatoire de victoire / égalité / défaite sur les matchs
         for i in range(0, len(self.playerList), 2):
-            randomScore = [0, 0.5, 1]
-            x = randomScore[randint(0, 2)]
-            # si le score de X est 0, le joueur Y gagne 1. (perdu pour X)
-            if x == 0:
-                x = self.playersSorted[i][1]
-                y = self.playersSorted[i+1][1] + 1
-            # si le score de X est 0,5, le joueur Y gagne 0,5. (égalité)
-            elif x == 0.5:
-                y = self.playersSorted[i+1][1] + 0.5
-                x = self.playersSorted[i][1] + 0.5
-            # si le score de X est 1, le joueur Y gagne 0. (perdu pour Y)
-            else:
-                x = self.playersSorted[i][1] + 1
-                y = self.playersSorted[i+1][1]
-            # on ajoute le tuple joueur / score au round actuel
-            # puis au total des matchs
-            
-            self.match.append(([self.playersSorted[i][0], x],
-                               [self.playersSorted[i+1][0], y]))
-            self.totalMatch.append(([self.playersSorted[i][0], x],
-                                    [self.playersSorted[i+1][0], y]))
+
+            wrongChoice = True
+            while wrongChoice == True:
+                print("Joueur " + str(self.playersSorted[i][0]) + " contre Joueur " + str(self.playersSorted[i+1][0]))
+                matchWinner = input("Entrez le numéro du gagnant (0 = égalité) : ")
+
+                try:
+                    if int(matchWinner) == self.playersSorted[i][0]:
+                        wrongChoice = False
+                        matchLoser = self.playersSorted[i+1][0]
+                        scoreW = self.playersSorted[i][1] + 1
+                        scoreL = self.playersSorted[i+1][1]
+                        print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                    elif int(matchWinner) == self.playersSorted[i+1][0]:
+                        wrongChoice = False
+                        matchLoser = self.playersSorted[i][0]
+                        scoreW = self.playersSorted[i+1][1] + 1
+                        scoreL = self.playersSorted[i][1]
+                        print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                    elif int(matchWinner) == 0:
+                        wrongChoice = False
+                        scoreW = self.playersSorted[i][1] + 0.5
+                        scoreL = self.playersSorted[i+1][1] + 0.5
+                        matchWinner = self.playersSorted[i][0]
+                        matchLoser = self.playersSorted[i+1][0]
+                        print("Égalité entre le Joueur : " + str(self.playersSorted[i][0]) + " et le Joueur : " + str(self.playersSorted[i+1][0]))
+                    else:
+                        print("Tapez une saisie valide (1)")
+                        continue
+
+                except ValueError:
+                    print("Tapez une saisie valide (2)")
+                    continue
+
+            print("")
+            self.match.append(([int(matchWinner), scoreW], [int(matchLoser), scoreL]))
+            self.totalMatch.append(([int(matchWinner), scoreW], [int(matchLoser), scoreL]))
 
     # permet le tri par rang et par score
     def getScore(self, elem):
