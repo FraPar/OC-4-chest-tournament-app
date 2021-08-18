@@ -385,10 +385,29 @@ class ManualRoundCreationController:
     def playerChoice(self):
         for datas in self.playerPool.all():
             print("ID :" + str(datas.get('Player_Id')) + " , Joueur : " + str(datas.get('playerName')))
-        playerChoice = input("Séléctionnez l'ID du joueur :")
-        playerId = self.playerPool.search(where("Player_Id") == int(playerChoice))[0]
-        self.playerRank = playerId["playerRank"]
-        self.last_index = playerId["Player_Id"]
+        wrongChoice = True
+        while wrongChoice is True :
+            playerChoice = input("Séléctionnez l'ID du joueur :")
+            try:
+                playerId = self.playerPool.search(where("Player_Id") == int(playerChoice))[0]
+
+                if len(self.playerListToSort) != 0:
+                    wrongChoice = False
+                    for i in range(len(self.playerListToSort)):
+                        if self.playerListToSort[i][0] == playerId["Player_Id"]:
+                            print("Veuillez entrer un nouveau joueur (ID déjà rentré)")
+                            wrongChoice = True
+                    self.playerRank = playerId["playerRank"]
+                    self.last_index = playerId["Player_Id"]
+                    continue
+                else:
+                    self.playerRank = playerId["playerRank"]
+                    self.last_index = playerId["Player_Id"]
+                    wrongChoice = False
+                    print("Saisie correcte")
+            except (IndexError, ValueError):
+                print("Veuillez entrer une ID correcte")
+            continue
 
     # création des joueurs
     def creationPlayer(self):
