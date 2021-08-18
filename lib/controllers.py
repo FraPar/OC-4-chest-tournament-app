@@ -1,7 +1,7 @@
 import views
 
 from tinydb import TinyDB, where, Query
-from random import random
+# from random import random
 import random
 
 # VOIR POUR LA COMPARAISON AVEC JOUEUR DEJA DANS LE TOURNOI
@@ -35,7 +35,6 @@ class HomeController:
 
         if next_action == "1":
             Load_state = False
-            # return ManualTournamentCreationController()
             Save_step = 0
             middleNumberPlayers = 0
             first_halfPlayers = []
@@ -188,8 +187,6 @@ class ManualRoundCreationController:
             self.tournamentTable.insert(tournamentData)
 
             """ETAPE 1 DE SAUVEGARDE"""
-
-        etapes = input("Etape après Save 1")
         if (self.Load_state is True and self.Save_step == 1) or self.Load_state is False:
 
             """DONNEES JOUEURS"""
@@ -262,8 +259,6 @@ class ManualRoundCreationController:
                                         Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 2 DE SAUVEGARDE"""
-
-        etapes = input("Etape après Save 2")
         if (self.Load_state is True and self.Save_step == 2) or self.Load_state is False:
 
             """ROUND 1"""
@@ -327,8 +322,6 @@ class ManualRoundCreationController:
                                         Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 3 DE SAUVEGARDE"""
-
-        etapes = input("Etape après Save 3")
         if (self.Load_state is True and self.Save_step == 3) or self.Load_state is False:
 
             """ROUND 2"""
@@ -345,8 +338,6 @@ class ManualRoundCreationController:
                                         Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 4 DE SAUVEGARDE"""
-
-        etapes = input("Etape après Save 4")
         if (self.Load_state is True and self.Save_step == 4) or self.Load_state is False:
 
             """ROUND 3"""
@@ -363,9 +354,6 @@ class ManualRoundCreationController:
                                         Query().Tournament_Id == self.tournament_index)
 
             """ETAPE 5 DE SAUVEGARDE"""
-
-        etapes = input("Etape après Save 5")
-
         if (self.Load_state is True and self.Save_step == 5) or self.Load_state is False:
 
             """ROUND 4"""
@@ -386,7 +374,7 @@ class ManualRoundCreationController:
         for datas in self.playerPool.all():
             print("ID :" + str(datas.get('Player_Id')) + " , Joueur : " + str(datas.get('playerName')))
         wrongChoice = True
-        while wrongChoice is True :
+        while wrongChoice is True:
             playerChoice = input("Séléctionnez l'ID du joueur :")
             try:
                 playerId = self.playerPool.search(where("Player_Id") == int(playerChoice))[0]
