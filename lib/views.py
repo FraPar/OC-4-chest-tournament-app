@@ -4,10 +4,11 @@ class HomeView:
     @staticmethod
     def render():
         print(
+            "\n"
             "Menu d'accueil\n"
             "==============\n"
-            "1. Créer un nouveau tournoi (manuel)\n"
-            "2. Créer un nouveau joueur (manuel)\n"
+            "1. Créer un nouveau tournoi\n"
+            "2. Créer un nouveau joueur\n"
             "3. Créer un nouveau rapport\n"
             "4. Reprendre un tournoi\n"
             "5. Quitter le programme\n"
@@ -25,7 +26,8 @@ class ManualTournamentCreationView:
 
     def render(self):
         print(
-            "Menu de création d'un nouveau tournoi (manuel)\n"
+            "\n"
+            "Menu de création d'un nouveau tournoi\n"
             "==============================\n"
             "1. créer un tournoi\n"
             "2. retour à l'accueil\n"
@@ -44,7 +46,8 @@ class PlayerMenuView:
 
     def render(self):
         print(
-            "Menu de création d'un joueur (manuel)\n"
+            "\n"
+            "Menu de création d'un joueur\n"
             "==============================\n"
             "1. créer un joueur\n"
             "2. retour à l'accueil\n"
@@ -63,6 +66,7 @@ class ReportMenuView:
 
     def render(self):
         print(
+            "\n"
             "Menu de création d'un rapport\n"
             "==============================\n"
             "1. créer un rapport sur l'ensemble des joueurs\n"
