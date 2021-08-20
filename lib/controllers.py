@@ -57,7 +57,6 @@ class HomeController:
                 tournamentTable = self.tournamentTable.all()
                 sorted_list = sorted(tournamentTable, key=lambda
                                      item: item["Tournament_Id"])
-                print(list(sorted_list)[-1]["Tournament_Id"])
                 last_index = list(sorted_list)[-1]["Tournament_Id"] + 1
 
             tournament_index = last_index
@@ -471,7 +470,17 @@ class ManualRoundCreationController:
         playerSurname = input("Entrez le prénom du joueur : ")
         playerBirthdate = input("Entrez la date de naissance du joueur : ")
         playerGender = input("Entrez le genre du joueur : ")
-        self.playerRank = int(input("Entrez le rang du joueur : "))
+        wrongChoice = True
+
+        # on évite les erreurs de saisie dans le rang du joueur
+        while wrongChoice is True:
+            try:
+                self.playerRank = int(input("Entrez le rang du joueur : "))
+                wrongChoice = False
+                continue
+            except (IndexError, ValueError):
+                print("Veuillez entrer un rang correcte")
+                continue
 
         # Teste s'il y a des joueurs dans la BDD correspondante
         if len(self.playerPool.all()) == 0:
@@ -480,7 +489,6 @@ class ManualRoundCreationController:
         else:
             playerPool = self.playerPool.all()
             sorted_list = sorted(playerPool, key=lambda item: item["Player_Id"])
-            print(list(sorted_list)[-1]["Player_Id"])
             self.last_index = list(sorted_list)[-1]["Player_Id"] + 1
 
         playerData = {"Player_Id": self.last_index, "playerName": playerName,
@@ -714,7 +722,17 @@ class PlayerCreationController:
         playerSurname = input("Entrez le prénom du joueur : ")
         playerBirthdate = input("Entrez la date de naissance du joueur : ")
         playerGender = input("Entrez le genre du joueur : ")
-        playerRank = input("Entrez le rang du joueur : ")
+        wrongChoice = True
+
+        # on évite les erreurs de saisie dans le rang du joueur
+        while wrongChoice is True:
+            try:
+                playerRank = int(input("Entrez le rang du joueur : "))
+                wrongChoice = False
+                continue
+            except (IndexError, ValueError):
+                print("Veuillez entrer un rang correcte")
+                continue
 
         # définition de l'index du joueur a créer
         # on vérifie si la base de donnée n'a pas encore de joueurs
@@ -724,7 +742,6 @@ class PlayerCreationController:
             # on regarde quel est le prochain index disponible dans la BDD des joueurs
             playerPool = self.playerPool.all()
             sorted_list = sorted(playerPool, key=lambda item: item["Player_Id"])
-            print(list(sorted_list)[-1]["Player_Id"])
             last_index = list(sorted_list)[-1]["Player_Id"] + 1
 
         playerData = {"Player_Id": last_index, "playerName": playerName,
@@ -734,8 +751,7 @@ class PlayerCreationController:
         # insertion des données du joueur dans la BDD correspondante
         self.playerPool.insert(playerData)
 
-        for datas in self.playerPool.all():
-            print(datas)
+        print("Le joueur a été crée")
 
 
 class ReportMenuController:
@@ -748,12 +764,16 @@ class ReportMenuController:
     def run(self):
         self.view.render()
         next_action = self.view.get_user_choice()
+        # créer un rapport sur l'ensemble des joueurs
         if next_action == "1":
             return ReportAllPlayerController()
+        # créer un rapport sur l'ensemble des tournois
         elif next_action == "2":
             return ReportTournamentController()
+        # retour à l'accueil
         elif next_action == "3":
             return HomeController()
+        # quitter le programme
         elif next_action == "4":
             return EndController()
         else:
@@ -785,12 +805,15 @@ class ReportAllPlayerController:
         wrongChoice = True
         while wrongChoice is True:
             userChoice = input("Que voulez-vous faire? ")
+            # Trier l'ensemble par ordre Alphabétique
             if userChoice == "1":
                 wrongChoice = False
                 self.player_SortName()
+            # Trier l'ensemble par Rang
             elif userChoice == "2":
                 wrongChoice = False
                 self.player_SortRank()
+            # retour à l'accueil
             elif userChoice == "3":
                 wrongChoice = False
                 return EndController()
@@ -799,6 +822,7 @@ class ReportAllPlayerController:
                 print("Veuillez saisir un entrée valide")
             continue
 
+    # Fonction de tri des joueurs par Noms
     def player_SortName(self):
         playerPool = self.playerPool.all()
         sorted_list = sorted(playerPool, key=lambda item: item["playerName"])
@@ -808,6 +832,7 @@ class ReportAllPlayerController:
                   + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"])
                   + ", Classement : " + str(datas["playerRank"]))
 
+    # Fonction de tri des joueurs par Rang
     def player_SortRank(self):
         playerPool = self.playerPool.all()
         sorted_list = sorted(playerPool, key=lambda item: item["playerRank"])
@@ -834,7 +859,7 @@ class ReportTournamentController:
         return ReportMenuController()
 
     def creationReport(self):
-
+        # Listing de tous les tournois dans la BDD des tournois
         for datas in self.tournamentTable.all():
             print("ID : " + str(datas["Tournament_Id"]) + ", Nom : " + str(datas["Name"])
                   + ", Lieu : " + str(datas["Location"]) + ", Date : " + str(datas["Date"])
@@ -851,35 +876,43 @@ class ReportTournamentController:
         wrongChoice = True
         while wrongChoice is True:
             userChoice = input("Que voulez-vous faire? ")
+            # Voir les tours d'un tournoi spécifique
             if userChoice == "1":
                 wrongChoice = False
                 tournamentChoice = int(input("Séléctionnez le tournoi (ID):"))
+                # on va chercher l'ID du tournoi dansl a BDD des tournois
                 user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
                 print("")
                 print("ID : " + str(user_Choice[0]["Tournament_Id"]) + ", Nom : " + str(user_Choice[0]["Name"])
                       + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : " + str(user_Choice[0]["Date"])
                       + ", Nombre de rounds : " + str(user_Choice[0]["Round"]) + ", Type de temps : "
                       + str(user_Choice[0]["Time"]) + ", Description : " + str(user_Choice[0]["Description"]))
+                # on charge le 1er Round si une sauvegarde a été faites après celui-ci
                 if user_Choice[0]["Save_step"] >= 3:
                     print("Joueurs : " + str(user_Choice[0]["players"]))
                     print("")
                     print("Matchs joués :")
                     print("Round 1 :")
                     print(str(user_Choice[0]["matchs"][:4]))
+                # on charge le 2eme Round si une sauvegarde a été faites après celui-ci
                 if user_Choice[0]["Save_step"] >= 4:
                     print("Round 2 :")
                     print(str(user_Choice[0]["matchs"][4:8]))
+                # on charge le 3eme Round si une sauvegarde a été faites après celui-ci
                 if user_Choice[0]["Save_step"] >= 5:
                     print("Round 3 :")
                     print(str(user_Choice[0]["matchs"][8:-4]))
+                # on charge le dernier Round si une sauvegarde a été faites après celui-ci
                 if user_Choice[0]["Save_step"] >= 6:
                     print("Round 4 :")
                     print(str(user_Choice[0]["matchs"][-4:]))
                 print("")
 
+            # Voir les matchs d'un tournoi spécifique
             elif userChoice == "2":
                 wrongChoice = False
                 tournamentChoice = int(input("Séléctionnez le tournoi (ID) :"))
+                # on va chercher l'ID du tournoi dansl a BDD des tournois
                 user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
                 print("")
                 print("ID : " + str(user_Choice[0]["Tournament_Id"]) + ", Nom : " + str(user_Choice[0]["Name"])
@@ -891,9 +924,11 @@ class ReportTournamentController:
                 print("Matchs joués :")
                 print(str(user_Choice[0]["matchs"]))
 
+            # Voir les joueurs d'un tournoi spécifique
             elif userChoice == "3":
                 wrongChoice = False
                 tournamentChoice = int(input("Séléctionnez le tournoi (ID) :"))
+                # on va chercher l'ID du tournoi dansl a BDD des tournois
                 user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
                 for datas in user_Choice[0]["players"]:
                     self.playerInTournament.append(self.playerPool.search(where("Player_Id") == datas[1])[0])
@@ -906,6 +941,7 @@ class ReportTournamentController:
                 wrongChoice = True
                 while wrongChoice is True:
                     userChoice = input("Que voulez-vous faire? ")
+                    # Trier l'ensemble des joueurs du tournoi par ordre Alphabétiqu
                     if userChoice == "1":
                         wrongChoice = False
                         sorted_list = sorted(self.playerInTournament, key=lambda item: item["playerName"])
@@ -914,6 +950,7 @@ class ReportTournamentController:
                                   + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
                                   + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"])
                                   + ", Classement : " + str(datas["playerRank"]))
+                    # Trier l'ensemble des joueurs du tournoi par rang
                     elif userChoice == "2":
                         wrongChoice = False
                         sorted_list = sorted(self.playerInTournament, key=lambda item: item["playerRank"])
@@ -927,6 +964,7 @@ class ReportTournamentController:
                         print("Veuillez saisir un entrée valide")
                     continue
 
+            # Retour au menu d'accueil
             elif userChoice == "4":
                 wrongChoice = False
                 return EndController()
