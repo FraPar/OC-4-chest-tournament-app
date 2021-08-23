@@ -245,7 +245,7 @@ class ManualRoundCreationController:
                             playerPool = self.playerPool.all()
                             sorted_list = sorted(playerPool, key=lambda
                                                  item: item["Player_Id"])
-                            print(list(sorted_list)[-1]["Player_Id"])
+                            print("Joueur automatique crée \n")
                             self.last_index = list(sorted_list)[-1]["Player_Id"] + 1
 
                         # choix aléatoire d'une côte
@@ -324,12 +324,12 @@ class ManualRoundCreationController:
                         if int(matchWinner) == self.first_halfPlayers[i]:
                             wrongChoice = False
                             matchLoser = self.second_halfPlayers[i]
-                            print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                            print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser) + "\n")
                         # teste si le joueur ayant gagné est celui de la moitié infèrieure
                         elif int(matchWinner) == self.second_halfPlayers[i]:
                             wrongChoice = False
                             matchLoser = self.first_halfPlayers[i]
-                            print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser))
+                            print("Gagnant : " + str(matchWinner) + " ; Perdant : " + str(matchLoser) + "\n")
                         # teste si les joueurs ont fait une égalité
                         elif int(matchWinner) == 0:
                             wrongChoice = False
@@ -338,7 +338,7 @@ class ManualRoundCreationController:
                             matchWinner = self.first_halfPlayers[i]
                             matchLoser = self.second_halfPlayers[i]
                             print("Égalité entre le Joueur : " + str(self.first_halfPlayers[i]) +
-                                  " et le Joueur : " + str(self.second_halfPlayers[i]))
+                                  " et le Joueur : " + str(self.second_halfPlayers[i]) + "\n")
                         else:
                             continue
 
@@ -361,7 +361,6 @@ class ManualRoundCreationController:
             self.playersSorted = self.playersToSort
 
             # impression des scores des joueurs du tournoi
-            print(self.playersSorted)
             for datas in self.playersSorted:
                 print("Joueur : " + str(datas[0]) + " Points : " + str(datas[1]))
 
@@ -894,7 +893,7 @@ class ReportTournamentController:
                   + ", Nombre de rounds : " + str(datas["Round"]) + ", Type de temps : "
                   + str(datas["Time"]) + ", Description : " + str(datas["Description"]))
 
-        print("Voulez-vous :")
+        print("\n Voulez-vous :")
         print("==============================")
         print("1. Voir les tours d'un tournoi spécifique")
         print("2. Voir les matchs d'un tournoi spécifique")
@@ -967,7 +966,7 @@ class ReportTournamentController:
                     for datas in user_Choice[0]["players"]:
                         self.playerInTournament.append(self.playerPool.search(where("Player_Id") == datas[1])[0])
 
-                    print("Voulez-vous :")
+                    print("\n Voulez-vous :")
                     print("==============================")
                     print("1. Trier l'ensemble par ordre Alphabétique")
                     print("2. Trier l'ensemble par Rang")
