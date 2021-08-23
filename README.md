@@ -17,10 +17,10 @@ sur votre touche entrée.Il vous sera ensuite demandé de saisir les information
 de la même manière que précédement : une fois que votre saisie est correcte, vous appuyez sur entrée pour
 valider votre choix.
 Il vous sera ensuite demandé d'ajouter les 8 joueurs du tournoi. En tappant "1" dans la console, vous pourrez
-choisir un joueur déjà éxistant. En tappant "2", vous créerez un nouveau joueur. En tappant "3", un joueur 
+choisir un joueur déjà éxistant. En tappant "2", vous créerez un nouveau joueur. En tappant "3", un joueur
 sera crée automatiquement si vous souhaitez tester l'application.
 Une fois les 8 joueurs renseignés, les matchs peuvent commencer. Le système de tournoi Suisse est utilisé
-ici, le joueur 1 sera celui le mieux classé, le joueur 8 le moins bien classé. Saisissez alors le numéro du 
+ici, le joueur 1 sera celui le mieux classé, le joueur 8 le moins bien classé. Saisissez alors le numéro du
 gagnant de chaque matchs ou le "0" en cas d'égalité. Si le joueur 1 rencontre le joueur 5 et gagne son tout
 premier match, le joueur 1 gagnera alors 1 point, là ou le joueur 5 restera à 0. Les scores sont cumulés
 tout au long du tournoi.
@@ -29,7 +29,7 @@ correspondant à chaque joueur avec une ID propre à chacun.
 
 
 Si vous souhaitez générer un nouveau rapport Flake8-html, tapez dans votre console :
-"flake8 --max-line-length 120 --format=html --htmldir=flake-report"
+"flake8 --exclude env --max-line-length 120 --format=html --htmldir=flake-report"
 
 Merci d'avoir utilisé mon application.
 
