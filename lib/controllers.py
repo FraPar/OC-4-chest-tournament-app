@@ -877,13 +877,21 @@ class ReportTournamentController:
         while wrongChoice is True:
             userChoice = input("Que voulez-vous faire? ")
             # Voir les tours d'un tournoi spécifique
-            if userChoice == "1":
-                wrongChoice = False
+            try:
                 tournamentChoice = int(input("Séléctionnez le tournoi (ID):"))
                 # on va chercher l'ID du tournoi dansl a BDD des tournois
                 user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
+                wrongChoice = False
+                userTest = str(user_Choice[0]["Tournament_Id"])
+            except (IndexError, ValueError):
+                print("Veuillez entrer un ID correcte")
+                wrongChoice = True
+                continue
+            if userChoice == "1" and wrongChoice is False:
+                wrongChoice = False
+
                 print("")
-                print("ID : " + str(user_Choice[0]["Tournament_Id"]) + ", Nom : " + str(user_Choice[0]["Name"])
+                print("ID : " + userTest + ", Nom : " + str(user_Choice[0]["Name"])
                       + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : " + str(user_Choice[0]["Date"])
                       + ", Nombre de rounds : " + str(user_Choice[0]["Round"]) + ", Type de temps : "
                       + str(user_Choice[0]["Time"]) + ", Description : " + str(user_Choice[0]["Description"]))
@@ -909,11 +917,8 @@ class ReportTournamentController:
                 print("")
 
             # Voir les matchs d'un tournoi spécifique
-            elif userChoice == "2":
-                wrongChoice = False
-                tournamentChoice = int(input("Séléctionnez le tournoi (ID) :"))
-                # on va chercher l'ID du tournoi dansl a BDD des tournois
-                user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
+            elif userChoice == "2" and wrongChoice is False:
+
                 print("")
                 print("ID : " + str(user_Choice[0]["Tournament_Id"]) + ", Nom : " + str(user_Choice[0]["Name"])
                       + ", Lieu : " + str(user_Choice[0]["Location"]) + ", Date : " + str(user_Choice[0]["Date"])
@@ -925,11 +930,7 @@ class ReportTournamentController:
                 print(str(user_Choice[0]["matchs"]))
 
             # Voir les joueurs d'un tournoi spécifique
-            elif userChoice == "3":
-                wrongChoice = False
-                tournamentChoice = int(input("Séléctionnez le tournoi (ID) :"))
-                # on va chercher l'ID du tournoi dansl a BDD des tournois
-                user_Choice = self.tournamentTable.search(where("Tournament_Id") == tournamentChoice)
+            elif userChoice == "3" and wrongChoice is False:
                 for datas in user_Choice[0]["players"]:
                     self.playerInTournament.append(self.playerPool.search(where("Player_Id") == datas[1])[0])
 
@@ -965,12 +966,10 @@ class ReportTournamentController:
                     continue
 
             # Retour au menu d'accueil
-            elif userChoice == "4":
-                wrongChoice = False
+            elif userChoice == "4" and wrongChoice is False:
                 return EndController()
 
             else:
-                wrongChoice = True
                 print("Veuillez saisir un entrée valide")
 
             continue
