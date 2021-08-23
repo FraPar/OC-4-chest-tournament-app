@@ -3,10 +3,6 @@ import views
 from tinydb import TinyDB, where, Query
 import random
 
-# VOIR POUR ERREUR CHOIX VIDE RAPPORT
-# VOIR ID VIDE ETC..
-# COMMENTER APRES LES RAPPORTS FAITS
-
 
 class ApplicationController:
     """Représente l'application elle-même et permet de la démarrer."""
@@ -307,8 +303,17 @@ class ManualRoundCreationController:
                 wrongChoice = True
                 # Boucle permettant d'assurer un choix valide
                 while wrongChoice is True:
-                    print("Joueur " + str(self.first_halfPlayers[i]) +
-                          " contre Joueur " + str(self.second_halfPlayers[i]))
+                    firstPlayerIndex = self.tournamentTable.search(where("Tournament_Id") ==
+                                                                   self.tournament_index)[0]["players"][i][1]
+                    secondPlayerIndex = self.tournamentTable.search(where("Tournament_Id") ==
+                                                                    self.tournament_index)[0]["players"][i+4][1]
+                    firstPlayerData = self.playerPool.search(where("Player_Id") ==
+                                                             firstPlayerIndex)[0]["playerName"]
+                    secondPlayerData = self.playerPool.search(where("Player_Id") ==
+                                                              secondPlayerIndex)[0]["playerName"]
+                    print("Joueur " + str(i+1) + " " + str(firstPlayerData) + " (" + str(firstPlayerIndex) + ")" +
+                          " contre Joueur " + str(i+5) + " " +
+                          str(secondPlayerData) + " (" + str(secondPlayerIndex) + ")")
                     matchWinner = input("Entrez le numéro du gagnant (0 = égalité) : ")
                     # définition des points alloués aux gagnants et aux perdants
                     scoreW = 1
@@ -357,6 +362,8 @@ class ManualRoundCreationController:
 
             # impression des scores des joueurs du tournoi
             print(self.playersSorted)
+            for datas in self.playersSorted:
+                print("Joueur : " + str(datas[0]) + " Points : " + str(datas[1]))
 
             # Définition de l'étape de sauvegarde à 3, après le Round 1
             self.Save_step = 3
@@ -377,7 +384,8 @@ class ManualRoundCreationController:
             self.getPlayerMatchs()
 
             # impression des scores des joueurs du tournoi
-            print(self.playersSorted)
+            for datas in self.playersSorted:
+                print("Joueur " + str(datas[0]) + " | Points : " + str(datas[1]))
 
             # Définition de l'étape de sauvegarde à 4, après le Round 2
             self.Save_step = 4
@@ -398,7 +406,8 @@ class ManualRoundCreationController:
             self.getPlayerMatchs()
 
             # impression des scores des joueurs du tournoi
-            print(self.playersSorted)
+            for datas in self.playersSorted:
+                print("Joueur " + str(datas[0]) + " | Points : " + str(datas[1]))
 
             # Définition de l'étape de sauvegarde à 5, après le Round 3
             self.Save_step = 5
@@ -419,7 +428,8 @@ class ManualRoundCreationController:
             self.getPlayerMatchs()
 
             # impression des scores des joueurs du tournoi
-            print(self.playersSorted)
+            for datas in self.playersSorted:
+                print("Joueur " + str(datas[0]) + " | Points : " + str(datas[1]))
 
             # Définition de l'étape de sauvegarde à 6, après le Round 4
             self.Save_step = 6
@@ -433,35 +443,39 @@ class ManualRoundCreationController:
         # listing de l'ensemble des joueurs présents dans la BDD
         for datas in self.playerPool.all():
             print("ID :" + str(datas.get('Player_Id')) + " , Joueur : " + str(datas.get('playerName')))
-        wrongChoice = True
-        # boucle permettant d'éviter un choix éronné
-        while wrongChoice is True:
-            playerChoice = input("Séléctionnez l'ID du joueur :")
-            try:
-                # recherche dans la BDD des joueurs l'ID demandé
-                playerId = self.playerPool.search(where("Player_Id") == int(playerChoice))[0]
+        if len(self.playerPool.all()) == 0:
+            print("Pas de joueurs crées")
+        else:
+            wrongChoice = True
+            # boucle permettant d'éviter un choix éronné
+            while wrongChoice is True:
+                playerChoice = input("Séléctionnez l'ID du joueur :")
+                try:
+                    # recherche dans la BDD des joueurs l'ID demandé
+                    playerId = self.playerPool.search(where("Player_Id") == int(playerChoice))[0]
 
-                # test permettant de savoir si des joueurs ont déjà été inséré
-                if len(self.playerListToSort) != 0:
-                    wrongChoice = False
-                    # boucle sur l'ensemble des joueurs inséré pour vérifier s'il y a un doublon
-                    for i in range(len(self.playerListToSort)):
-                        if self.playerListToSort[i][0] == playerId["Player_Id"]:
-                            print("Veuillez entrer un nouveau joueur (ID déjà rentré)")
-                            wrongChoice = True
-                    # ajout des informations nécessaire à l'insertion d'un joueur dans un tournoi
-                    self.playerRank = playerId["playerRank"]
-                    self.last_index = playerId["Player_Id"]
-                    continue
-                else:
-                    # ajout des informations nécessaire à l'insertion d'un joueur dans un tournoi
-                    # si aucun joueur n'avait été inséré auparavant
-                    self.playerRank = playerId["playerRank"]
-                    self.last_index = playerId["Player_Id"]
-                    wrongChoice = False
-            except (IndexError, ValueError):
-                print("Veuillez entrer une ID correcte")
-            continue
+                    # test permettant de savoir si des joueurs ont déjà été inséré
+                    if len(self.playerListToSort) != 0:
+                        wrongChoice = False
+                        # boucle sur l'ensemble des joueurs inséré pour vérifier s'il y a un doublon
+                        for i in range(len(self.playerListToSort)):
+                            if self.playerListToSort[i][0] == playerId["Player_Id"]:
+                                print("Veuillez entrer un nouveau joueur (ID déjà rentré)")
+                                wrongChoice = True
+                                break
+                        # ajout des informations nécessaire à l'insertion d'un joueur dans un tournoi
+                        self.playerRank = playerId["playerRank"]
+                        self.last_index = playerId["Player_Id"]
+                        continue
+                    else:
+                        # ajout des informations nécessaire à l'insertion d'un joueur dans un tournoi
+                        # si aucun joueur n'avait été inséré auparavant
+                        self.playerRank = playerId["playerRank"]
+                        self.last_index = playerId["Player_Id"]
+                        wrongChoice = False
+                except (IndexError, ValueError):
+                    print("Veuillez entrer une ID correcte")
+                continue
 
     # création des joueurs
     def creationPlayer(self):
@@ -613,8 +627,19 @@ class ManualRoundCreationController:
             wrongChoice = True
             # Boucle évitant les erreurs de saisie
             while wrongChoice is True:
-                print("Joueur " + str(self.playersSorted[i][0]) + " contre Joueur " + str(self.playersSorted[i+1][0]))
-                matchWinner = input("Entrez le numéro du gagnant (0 = égalité) : ")
+                firstPlayerIndex = self.tournamentTable.search(where("Tournament_Id") ==
+                                                               self.tournament_index)[0]["players"][i][1]
+                secondPlayerIndex = self.tournamentTable.search(where("Tournament_Id") ==
+                                                                self.tournament_index)[0]["players"][i+1][1]
+                firstPlayerData = self.playerPool.search(where("Player_Id") ==
+                                                         self.playersSorted[i][0])[0]["playerName"]
+                secondPlayerData = self.playerPool.search(where("Player_Id") ==
+                                                          self.playersSorted[i+1][0])[0]["playerName"]
+                print("Joueur " + str(self.playersSorted[i][0]) + " " +
+                      str(firstPlayerData) + " (" + str(firstPlayerIndex) + ")" +
+                      " contre Joueur " + str(self.playersSorted[i+1][0]) + " " +
+                      str(secondPlayerData) + " (" + str(secondPlayerIndex) + ")")
+                matchWinner = input("Entrez le numéro du Joueur gagnant (0 = égalité) : ")
 
                 try:
                     # on teste si le 1er joueur des 2 est le gagnant
@@ -792,7 +817,10 @@ class ReportAllPlayerController:
         self.playerPool = self.db.table('player_pool')
 
     def run(self):
-        self.creationReport()
+        if len(self.playerPool.all()) == 0:
+            print("Pas de joueurs crées")
+        else:
+            self.creationReport()
         return ReportMenuController()
 
     def creationReport(self):
@@ -875,6 +903,10 @@ class ReportTournamentController:
 
         wrongChoice = True
         while wrongChoice is True:
+            # on vérifie qu'il y a un tournoi dans la BDD
+            if len(self.tournamentTable.all()) == 0:
+                print("Pas de tournois joués")
+                break
             userChoice = input("Que voulez-vous faire? ")
             # Voir les tours d'un tournoi spécifique
             try:
@@ -931,39 +963,42 @@ class ReportTournamentController:
 
             # Voir les joueurs d'un tournoi spécifique
             elif userChoice == "3" and wrongChoice is False:
-                for datas in user_Choice[0]["players"]:
-                    self.playerInTournament.append(self.playerPool.search(where("Player_Id") == datas[1])[0])
+                if user_Choice[0]["Save_step"] >= 2:
+                    for datas in user_Choice[0]["players"]:
+                        self.playerInTournament.append(self.playerPool.search(where("Player_Id") == datas[1])[0])
 
-                print("Voulez-vous :")
-                print("==============================")
-                print("1. Trier l'ensemble par ordre Alphabétique")
-                print("2. Trier l'ensemble par Rang")
+                    print("Voulez-vous :")
+                    print("==============================")
+                    print("1. Trier l'ensemble par ordre Alphabétique")
+                    print("2. Trier l'ensemble par Rang")
 
-                wrongChoice = True
-                while wrongChoice is True:
-                    userChoice = input("Que voulez-vous faire? ")
-                    # Trier l'ensemble des joueurs du tournoi par ordre Alphabétiqu
-                    if userChoice == "1":
-                        wrongChoice = False
-                        sorted_list = sorted(self.playerInTournament, key=lambda item: item["playerName"])
-                        for datas in sorted_list:
-                            print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"])
-                                  + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
-                                  + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"])
-                                  + ", Classement : " + str(datas["playerRank"]))
-                    # Trier l'ensemble des joueurs du tournoi par rang
-                    elif userChoice == "2":
-                        wrongChoice = False
-                        sorted_list = sorted(self.playerInTournament, key=lambda item: item["playerRank"])
-                        for datas in sorted_list:
-                            print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"])
-                                  + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
-                                  + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"])
-                                  + ", Classement : " + str(datas["playerRank"]))
-                    else:
-                        wrongChoice = True
-                        print("Veuillez saisir un entrée valide")
-                    continue
+                    wrongChoice = True
+                    while wrongChoice is True:
+                        userChoice = input("Que voulez-vous faire? ")
+                        # Trier l'ensemble des joueurs du tournoi par ordre Alphabétiqu
+                        if userChoice == "1":
+                            wrongChoice = False
+                            sorted_list = sorted(self.playerInTournament, key=lambda item: item["playerName"])
+                            for datas in sorted_list:
+                                print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"])
+                                      + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                                      + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"])
+                                      + ", Classement : " + str(datas["playerRank"]))
+                        # Trier l'ensemble des joueurs du tournoi par rang
+                        elif userChoice == "2":
+                            wrongChoice = False
+                            sorted_list = sorted(self.playerInTournament, key=lambda item: item["playerRank"])
+                            for datas in sorted_list:
+                                print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"])
+                                      + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                                      + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"])
+                                      + ", Classement : " + str(datas["playerRank"]))
+                        else:
+                            wrongChoice = True
+                            print("Veuillez saisir un entrée valide")
+                        continue
+                else:
+                    print("Aucun joueur n'a été inséré dans un match")
 
             # Retour au menu d'accueil
             elif userChoice == "4" and wrongChoice is False:
