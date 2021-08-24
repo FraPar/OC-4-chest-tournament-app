@@ -52,13 +52,15 @@ class HomeController:
             return HomeController()
 
 
-class ManualRoundCreationController:
+class TournamentCreationController:
     """Création d'un nouveau tournoi"""
 
     def __init__(self, load_state, save_step,
                  tournament_index, middle_number_players,
                  first_half_players, second_half_players,
                  total_match, players_sorted, match, player_list):
+
+        self.view = views.TournamentMenuView()
         self.db = TinyDB('db.json')
 
         # variable de chargement de tournoi
@@ -95,6 +97,7 @@ class ManualRoundCreationController:
     def run(self):
 
         # --- ETAPE 0 DE SAUVEGARDE --- #
+        # test de l'étape de sauvegarde en cas de reprise de tournoi
         if self.load_state is False:
             # renseignement des informations concernant le tournoi
             tournament_name = input("Entrez le nom du tournoi : ")
@@ -114,22 +117,16 @@ class ManualRoundCreationController:
             self.tournament_table.insert(tournament_data)
 
         # --- ETAPE 1 DE SAUVEGARDE --- #
-        # test de l'étape de sauvegarde en cas de reprise de tournoi
         if (self.load_state is True and self.save_step == 1) or self.load_state is False:
 
             # --- INSERTION DES DONNEES JOUEURS --- #
             # Index permettant de créer un joueur automatiquement
-            i = 0
+            player_index = 0
             # Boucle permettant d'ajouter 8 joueurs ont bien été renseigné dans le tournoi
             while len(self.player_list_to_sort) < 8:
-                i += 1
+                player_index += 1
                 # Menu de choix de la manière d'insérer un joueur das le tournoi
-                print("Voulez-vous :")
-                print("==============================")
-                print("1. Ajouter un joueur déjà éxistant")
-                print("2. Créer un nouveau joueur (Manuel)")
-                print("3. Créer un nouveau joueur (Automatique)")
-
+                self.view.render()
                 wrong_choice = True
                 # permet de boucler tant qu'un choix invalide est détécté
                 while wrong_choice is True:
@@ -138,43 +135,17 @@ class ManualRoundCreationController:
                     if user_choice == "1":
                         wrong_choice = False
                         self.player_choice()
-                    # Créer un nouveau joueur (Manuel)
+                    # Créer un nouveau joueur
                     elif user_choice == "2":
                         wrong_choice = False
                         self.creation_player()
-                    # Créer un nouveau joueur (Automatique)
-                    elif user_choice == "3":
-                        wrong_choice = False
-                        player_name = "Name" + str(i)
-                        player_surname = "Surname" + str(i)
-                        player_birthday = "BDate" + str(i)
-                        player_gender = "Gender" + str(i)
-
-                        # Test de la présence de donnée dans la BDD
-                        if len(self.player_pool.all()) == 0:
-                            self.last_index = 0
-                        else:
-                            # Définition du prochain ID valide dans la BDD
-                            player_pool = self.player_pool.all()
-                            sorted_list = sorted(player_pool, key=lambda
-                                                 item: item["Player_Id"])
-                            print("Joueur automatique crée \n")
-                            self.last_index = list(sorted_list)[-1]["Player_Id"] + 1
-
-                        # choix aléatoire d'une côte
-                        self.player_rank = random.randint(0, 1500)
-                        player_data = {"Player_Id": self.last_index, "player_name": player_name,
-                                       "player_surname": player_surname, "player_birthday": player_birthday,
-                                       "player_gender": player_gender, "player_rank": self.player_rank}
-                        # Insertion des données dans la BDD de joueurs
-                        self.player_pool.insert(player_data)
                     else:
                         wrong_choice = True
                         print("Veuillez saisir une entrée valide")
 
                 # Ajout des joueurs et de leur rang avant tri
                 self.player_list_to_sort.append([(self.last_index), self.player_rank])
-                self.player_list.append(i)
+                self.player_list.append(player_index)
                 continue
 
             # Tri des joueurs par Rang
@@ -182,11 +153,11 @@ class ManualRoundCreationController:
                                         item: item[1], reverse=True)
 
             # Ajout d'un index aux joueurs pour connaître leur classement
-            i = 0
+            index = 0
             # Boucle sur l'ensemble des données triés pour pouvoir les insérer en BDD après
             for datas in player_list_sorted:
-                i += 1
-                self.player_list_by_rank.append((i, datas[0], datas[1]))
+                index += 1
+                self.player_list_by_rank.append((index, datas[0], datas[1]))
 
             # Définition des 4 premiers joueurs et des 4 derniers joueurs
             self.number_of_players = len(self.player_list)
@@ -203,12 +174,9 @@ class ManualRoundCreationController:
                                          Query().Tournament_Id == self.tournament_index)
 
             # --- ETAPE 2 DE SAUVEGARDE --- #
-            # test de l'étape de sauvegarde en cas de reprise de tournoi
         if (self.load_state is True and self.save_step == 2) or self.load_state is False:
 
-            # --- ROUND 1 --- #
-            print()
-            print("ROUND 1 :")
+            print("\nROUND 1 :")
 
             # Boucle permettant de matcher les joueurs de la moitié supèrieure
             # avec les joueurs de la moitié infèrieure respéctive
@@ -284,12 +252,9 @@ class ManualRoundCreationController:
                                          Query().Tournament_Id == self.tournament_index)
 
             # --- ETAPE 3 DE SAUVEGARDE --- #
-            # test de l'étape de sauvegarde en cas de reprise de tournoi
         if (self.load_state is True and self.save_step == 3) or self.load_state is False:
 
-            # --- ROUND 2 --- #
-            print()
-            print("ROUND 2 :")
+            print("\n ROUND 2 :")
 
             # Lancement de la fonction permettant de jouer un round complet
             self.get_player_match()
@@ -305,17 +270,11 @@ class ManualRoundCreationController:
                                          Query().Tournament_Id == self.tournament_index)
 
             # --- ETAPE 4 DE SAUVEGARDE --- #
-            # test de l'étape de sauvegarde en cas de reprise de tournoi
         if (self.load_state is True and self.save_step == 4) or self.load_state is False:
 
-            # --- ROUND 3 --- #
-            print()
-            print("ROUND 3 :")
+            print("\n ROUND 3 : ")
 
-            # Lancement de la fonction permettant de jouer un round complet
             self.get_player_match()
-
-            # impression des scores des joueurs du tournoi
             self.get_tournament_ranking()
 
             # Définition de l'étape de sauvegarde à 5, après le Round 3
@@ -326,17 +285,11 @@ class ManualRoundCreationController:
                                          Query().Tournament_Id == self.tournament_index)
 
             # --- ETAPE 5 DE SAUVEGARDE --- #
-            # test de l'étape de sauvegarde en cas de reprise de tournoi
         if (self.load_state is True and self.save_step == 5) or self.load_state is False:
 
-            # --- ROUND 4 --- #
-            print()
-            print("ROUND 4 :")
+            print("\n ROUND 4 :")
 
-            # Lancement de la fonction permettant de jouer un round complet
             self.get_player_match()
-
-            # impression des scores des joueurs du tournoi
             self.get_tournament_ranking()
 
             # Définition de l'étape de sauvegarde à 6, après le Round 4
@@ -385,9 +338,8 @@ class ManualRoundCreationController:
                     print("Veuillez entrer une ID correcte")
                 continue
 
-    # création des joueurs
     def creation_player(self):
-        # renseignement des informations nécéssaires à l'insertion d'un nouveau joueur
+        # renseignement des informations concernant le joueur
         player_name = input("Entrez le nom du joueur : ")
         player_surname = input("Entrez le prénom du joueur : ")
         player_birthday = input("Entrez la date de naissance du joueur : ")
@@ -397,28 +349,32 @@ class ManualRoundCreationController:
         # on évite les erreurs de saisie dans le rang du joueur
         while wrong_choice is True:
             try:
-                self.player_rank = abs(int(input("Entrez le rang du joueur : ")))
+                player_rank = abs(int(input("Entrez le rang du joueur : ")))
                 wrong_choice = False
                 continue
             except (IndexError, ValueError):
                 print("Veuillez entrer un rang correcte")
                 continue
 
-        # Teste s'il y a des joueurs dans la BDD correspondante
+        # définition de l'index du joueur a créer
+        # on vérifie si la base de donnée n'a pas encore de joueurs
         if len(self.player_pool.all()) == 0:
-            self.last_index = 0
-        # Définie le prochain ID disponible pour l'ajout de joueurs
+            last_index = 0
         else:
+            # on regarde quel est le prochain index disponible dans la BDD des joueurs
             player_pool = self.player_pool.all()
             sorted_list = sorted(player_pool, key=lambda item: item["Player_Id"])
-            self.last_index = list(sorted_list)[-1]["Player_Id"] + 1
+            last_index = list(sorted_list)[-1]["Player_Id"] + 1
 
-        player_data = {"Player_Id": self.last_index, "player_name": player_name,
+        player_data = {"Player_Id": last_index, "player_name": player_name,
                        "player_surname": player_surname, "player_birthday": player_birthday,
-                       "player_gender": player_gender, "player_rank": self.player_rank}
+                       "player_gender": player_gender, "player_rank": int(player_rank)}
 
-        # insert dans la BDD des joueurs le nouveau joueur
+        # insertion des données du joueur dans la BDD correspondante
         self.player_pool.insert(player_data)
+
+        print("Le joueur a été crée")
+
 
     # fonction globale permettant d'assurer les rounds 2 à 4
     def get_player_match(self):
@@ -666,7 +622,7 @@ class CreateTournament:
         tournament_index = last_index
 
         # lancement de la class permettant de créer un tournoi
-        return ManualRoundCreationController(
+        return TournamentCreationController(
                 load_state, save_step, tournament_index,
                 middle_number_players, first_half_players, second_half_players,
                 total_match, players_sorted, match, player_list)
@@ -730,7 +686,7 @@ class LoadTournament:
                 players_to_sort.sort(key=self.get_score, reverse=True)
                 players_sorted = players_to_sort
 
-            return ManualRoundCreationController(
+            return TournamentCreationController(
                 load_state, save_step, tournament_index,
                 middle_number_players, first_half_players,
                 second_half_players, total_match, players_sorted,
@@ -826,6 +782,7 @@ class PlayerRankController:
     """
 
     def __init__(self):
+        self.view = views.TournamentReportMenuView()
         self.db = TinyDB('db.json')
         self.player_pool = self.db.table('player_pool')
 
@@ -840,10 +797,7 @@ class PlayerRankController:
         # visualisation des joueurs présent dans la BDD
         player_pool = self.player_pool.all()
         for datas in player_pool:
-            print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["player_name"])
-                  + ", Prénom : " + str(datas["player_surname"]) + ", Date de naissance : "
-                  + str(datas["player_birthday"]) + ", Genre : " + str(datas["player_gender"])
-                  + ", Classement : " + str(datas["player_rank"]))
+            self.view.get_player_data(datas)
 
         wrong_choice = True
         while wrong_choice is True:
@@ -956,142 +910,86 @@ class ReportTournamentController:
     """
 
     def __init__(self):
+        self.view = views.TournamentReportMenuView()
         self.db = TinyDB('db.json')
         self.tournament_table = self.db.table('tournament_table')
         self.player_pool = self.db.table('player_pool')
         self.player_in_tournament = []
 
     def run(self):
-        self.creation_report()
+        self.view.menu_render()
+        self.next_action = self.view.get_user_choice()
+        # on vérifie qu'il y a un tournoi dans la BDD
+        if len(self.tournament_table.all()) == 0:
+            print("Pas de tournois joués")
+        else:
+            self.creation_report()
         return ReportMenuController()
 
     def creation_report(self):
         # Listing de tous les tournois dans la BDD des tournois
         for datas in self.tournament_table.all():
-            print("ID : " + str(datas["Tournament_Id"]) + ", Nom : " + str(datas["Name"])
-                  + ", Lieu : " + str(datas["Location"]) + ", Date : " + str(datas["Date"])
-                  + ", Nombre de rounds : " + str(datas["Round"]) + ", Type de temps : "
-                  + str(datas["Time"]) + ", Description : " + str(datas["Description"]))
+            self.view.get_tournament_data(datas)
+        user_choice = self.next_action
 
-        print("\n Voulez-vous :")
-        print("==============================")
-        print("1. Voir les tours d'un tournoi spécifique")
-        print("2. Voir les matchs d'un tournoi spécifique")
-        print("3. Voir les joueurs d'un tournoi spécifique")
-        print("4. Retourner au menu")
+        # Voir les tours d'un tournoi spécifique
+        try:
+            tournament_choice = int(input("Séléctionnez le tournoi (ID):"))
+            # on va chercher l'ID du tournoi dansl a BDD des tournois
+            tournament_user_choice = self.tournament_table.search(where("Tournament_Id") == tournament_choice)[0]
+        except (IndexError, ValueError, UnboundLocalError):
+            print("Veuillez entrer un ID correcte")
 
-        wrong_choice = True
-        while wrong_choice is True:
-            # on vérifie qu'il y a un tournoi dans la BDD
-            if len(self.tournament_table.all()) == 0:
-                print("Pas de tournois joués")
-                break
-            user_choice = input("Que voulez-vous faire? ")
-            # Voir les tours d'un tournoi spécifique
-            try:
-                tournament_choice = int(input("Séléctionnez le tournoi (ID):"))
-                # on va chercher l'ID du tournoi dansl a BDD des tournois
-                tournament_user_choice = self.tournament_table.search(where("Tournament_Id") == tournament_choice)
-                wrong_choice = False
-                user_test = str(tournament_user_choice[0]["Tournament_Id"])
-            except (IndexError, ValueError):
-                print("Veuillez entrer un ID correcte")
-                wrong_choice = True
-                continue
-            if user_choice == "1" and wrong_choice is False:
-                wrong_choice = False
+        # Voir les tours d'un tournoi spécifique
+        if user_choice == "1":
+            self.view.get_tournament_data(tournament_user_choice)
+            self.view.get_tournament_rounds(tournament_user_choice)
 
-                print("")
-                print("ID : " + user_test + ", Nom : " + str(tournament_user_choice[0]["Name"]) +
-                      ", Lieu : " + str(tournament_user_choice[0]["Location"]) +
-                      ", Date : " + str(tournament_user_choice[0]["Date"]) +
-                      ", Nombre de rounds : " + str(tournament_user_choice[0]["Round"]) +
-                      ", Type de temps : " + str(tournament_user_choice[0]["Time"]) +
-                      ", Description : " + str(tournament_user_choice[0]["Description"]))
-                # on charge le 1er Round si une sauvegarde a été faites après celui-ci
-                if tournament_user_choice[0]["save_step"] >= 3:
-                    print("Joueurs : " + str(tournament_user_choice[0]["players"]))
-                    print("")
-                    print("Matchs joués :")
-                    print("Round 1 :")
-                    print(str(tournament_user_choice[0]["matchs"][:4]))
-                # on charge le 2eme Round si une sauvegarde a été faites après celui-ci
-                if tournament_user_choice[0]["save_step"] >= 4:
-                    print("Round 2 :")
-                    print(str(tournament_user_choice[0]["matchs"][4:8]))
-                # on charge le 3eme Round si une sauvegarde a été faites après celui-ci
-                if tournament_user_choice[0]["save_step"] >= 5:
-                    print("Round 3 :")
-                    print(str(tournament_user_choice[0]["matchs"][8:-4]))
-                # on charge le dernier Round si une sauvegarde a été faites après celui-ci
-                if tournament_user_choice[0]["save_step"] >= 6:
-                    print("Round 4 :")
-                    print(str(tournament_user_choice[0]["matchs"][-4:]))
-                print("")
+        # Voir les matchs d'un tournoi spécifique
+        elif user_choice == "2":
+            self.view.get_tournament_data(tournament_user_choice)
+            self.view.get_tournament_players(tournament_user_choice)
+            self.view.get_tournament_matchs(tournament_user_choice)
 
-            # Voir les matchs d'un tournoi spécifique
-            elif user_choice == "2" and wrong_choice is False:
+        # Voir les joueurs d'un tournoi spécifique
+        elif user_choice == "3":
+            self.tournament_player(tournament_user_choice)
 
-                print("")
-                print("ID : " + str(tournament_user_choice[0]["Tournament_Id"]) +
-                      ", Nom : " + str(tournament_user_choice[0]["Name"]) +
-                      ", Lieu : " + str(tournament_user_choice[0]["Location"]) +
-                      ", Date : " + str(tournament_user_choice[0]["Date"]) +
-                      ", Nombre de rounds : " + str(tournament_user_choice[0]["Round"]) +
-                      ", Type de temps : " + str(tournament_user_choice[0]["Time"]) +
-                      ", Description : " + str(tournament_user_choice[0]["Description"]))
-                print("Joueurs : " + str(tournament_user_choice[0]["players"]))
-                print("")
-                print("Matchs joués :")
-                print(str(tournament_user_choice[0]["matchs"]))
+        # Retour au menu d'accueil
+        elif user_choice == "4":
+            return EndController()
 
-            # Voir les joueurs d'un tournoi spécifique
-            elif user_choice == "3" and wrong_choice is False:
-                if tournament_user_choice[0]["save_step"] >= 2:
-                    for datas in tournament_user_choice[0]["players"]:
-                        self.player_in_tournament.append(self.player_pool.search(where("Player_Id") == datas[1])[0])
+        else:
+            self.view.notify_invalid_choice()
+            return ReportTournamentController()
 
-                    print("\n Voulez-vous :")
-                    print("==============================")
-                    print("1. Trier l'ensemble par ordre Alphabétique")
-                    print("2. Trier l'ensemble par Rang")
+    def tournament_player(self, tournament_user_choice):
+        if tournament_user_choice["save_step"] >= 2:
+            for datas in tournament_user_choice["players"]:
+                self.player_in_tournament.append(self.player_pool.search(where("Player_Id") == datas[1])[0])
+            self.view.sort_menu_render()
 
-                    wrong_choice = True
-                    while wrong_choice is True:
-                        user_choice = input("Que voulez-vous faire? ")
-                        # Trier l'ensemble des joueurs du tournoi par ordre Alphabétiqu
-                        if user_choice == "1":
-                            wrong_choice = False
-                            sorted_list = sorted(self.player_in_tournament, key=lambda item: item["player_name"])
-                            for datas in sorted_list:
-                                print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["player_name"])
-                                      + ", Prénom : " + str(datas["player_surname"]) + ", Date de naissance : "
-                                      + str(datas["player_birthday"]) + ", Genre : " + str(datas["player_gender"])
-                                      + ", Classement : " + str(datas["player_rank"]))
-                        # Trier l'ensemble des joueurs du tournoi par rang
-                        elif user_choice == "2":
-                            wrong_choice = False
-                            sorted_list = sorted(self.player_in_tournament, key=lambda item: item["player_rank"])
-                            for datas in sorted_list:
-                                print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["player_name"])
-                                      + ", Prénom : " + str(datas["player_surname"]) + ", Date de naissance : "
-                                      + str(datas["player_birthday"]) + ", Genre : " + str(datas["player_gender"])
-                                      + ", Classement : " + str(datas["player_rank"]))
-                        else:
-                            wrong_choice = True
-                            print("Veuillez saisir une entrée valide")
-                        continue
+            wrong_choice = True
+            while wrong_choice is True:
+                user_choice = self.view.get_user_id_choice()
+                # Trier l'ensemble des joueurs du tournoi par ordre Alphabétiqu
+                if user_choice == "1":
+                    wrong_choice = False
+                    sorted_list = sorted(self.player_in_tournament, key=lambda item: item["player_name"])
+                    for datas in sorted_list:
+                        self.view.get_player_data(datas)
+                # Trier l'ensemble des joueurs du tournoi par rang
+                elif user_choice == "2":
+                    wrong_choice = False
+                    sorted_list = sorted(self.player_in_tournament, key=lambda item: item["player_rank"])
+                    for datas in sorted_list:
+                        self.view.get_player_data(datas)
                 else:
-                    print("Aucun joueur n'a été inséré dans un match")
-
-            # Retour au menu d'accueil
-            elif user_choice == "4" and wrong_choice is False:
-                return EndController()
-
-            else:
-                print("Veuillez saisir une entrée valide")
-
-            continue
+                    wrong_choice = True
+                    print("Veuillez saisir une entrée valide")
+                continue
+        else:
+            print("Aucun joueur n'a été inséré dans un match")
 
 
 class EndController:
