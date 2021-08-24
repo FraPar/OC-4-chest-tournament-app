@@ -81,9 +81,10 @@ class HomeController:
                 Load_state = True
                 # listing de l'ensemble des tournois renseignés dans la BDD
                 for datas in self.tournamentTable.all():
-                    print("Tournoi : " + str(datas.get('Tournament_Id')))
+                    print("Tournoi : " + str(datas.get('Tournament_Id')) + " | Nom : " + str(datas.get('Name')))
                 # demande à l'utilisateur du choix de l'ID de son tournoi
                 tournamentChoice = input("Séléctionnez le tournoi (ID):")
+
                 tournament_index = int(tournamentChoice)
                 # recherche du tournoi choisi par l'utilisateur
                 this_tournament = self.tournamentTable.search(where
@@ -187,7 +188,7 @@ class ManualRoundCreationController:
             tournamentName = input("Entrez le nom du tournoi : ")
             tournamentLocation = input("Entrez le lieu du tournoi : ")
             tournamentDate = input("Entrez la date du tournoi : ")
-            tournamentRound = input("Entrez le nombre de round du tournoi : ")
+            tournamentRound = int(4)
             tournamentTime = input("Entrez le temps du tournoi : ")
             tournamentDescription = input("Entrez la description du tournoi : ")
 
@@ -361,8 +362,7 @@ class ManualRoundCreationController:
             self.playersSorted = self.playersToSort
 
             # impression des scores des joueurs du tournoi
-            for datas in self.playersSorted:
-                print("Joueur : " + str(datas[0]) + " Points : " + str(datas[1]))
+            self.getTournamentRanking()
 
             # Définition de l'étape de sauvegarde à 3, après le Round 1
             self.Save_step = 3
@@ -383,8 +383,7 @@ class ManualRoundCreationController:
             self.getPlayerMatchs()
 
             # impression des scores des joueurs du tournoi
-            for datas in self.playersSorted:
-                print("Joueur " + str(datas[0]) + " | Points : " + str(datas[1]))
+            self.getTournamentRanking()
 
             # Définition de l'étape de sauvegarde à 4, après le Round 2
             self.Save_step = 4
@@ -405,8 +404,7 @@ class ManualRoundCreationController:
             self.getPlayerMatchs()
 
             # impression des scores des joueurs du tournoi
-            for datas in self.playersSorted:
-                print("Joueur " + str(datas[0]) + " | Points : " + str(datas[1]))
+            self.getTournamentRanking()
 
             # Définition de l'étape de sauvegarde à 5, après le Round 3
             self.Save_step = 5
@@ -427,8 +425,7 @@ class ManualRoundCreationController:
             self.getPlayerMatchs()
 
             # impression des scores des joueurs du tournoi
-            for datas in self.playersSorted:
-                print("Joueur " + str(datas[0]) + " | Points : " + str(datas[1]))
+            self.getTournamentRanking()
 
             # Définition de l'étape de sauvegarde à 6, après le Round 4
             self.Save_step = 6
@@ -488,7 +485,7 @@ class ManualRoundCreationController:
         # on évite les erreurs de saisie dans le rang du joueur
         while wrongChoice is True:
             try:
-                self.playerRank = int(input("Entrez le rang du joueur : "))
+                self.playerRank = abs(int(input("Entrez le rang du joueur : ")))
                 wrongChoice = False
                 continue
             except (IndexError, ValueError):
@@ -631,9 +628,9 @@ class ManualRoundCreationController:
                 secondPlayerIndex = self.tournamentTable.search(where("Tournament_Id") ==
                                                                 self.tournament_index)[0]["players"][i+1][1]
                 firstPlayerData = self.playerPool.search(where("Player_Id") ==
-                                                         self.playersSorted[i][0])[0]["playerName"]
+                                                         firstPlayerIndex)[0]["playerName"]
                 secondPlayerData = self.playerPool.search(where("Player_Id") ==
-                                                          self.playersSorted[i+1][0])[0]["playerName"]
+                                                          secondPlayerIndex)[0]["playerName"]
                 print("Joueur " + str(self.playersSorted[i][0]) + " " +
                       str(firstPlayerData) + " (" + str(firstPlayerIndex) + ")" +
                       " contre Joueur " + str(self.playersSorted[i+1][0]) + " " +
@@ -684,6 +681,27 @@ class ManualRoundCreationController:
     def getScore(self, elem):
         return elem[1]
 
+    # permet d'afficher le classement
+    def getTournamentRanking(self):
+        for datas in self.playersSorted:
+            IdFounded = False
+            while IdFounded is False:
+                for i in range(len(self.playersSorted)):
+                    PlayerIndex = self.tournamentTable.search(where("Tournament_Id") ==
+                                                              self.tournament_index)[0]["players"][i][0]
+                    if datas[0] == PlayerIndex:
+                        PlayerIndex = self.tournamentTable.search(where("Tournament_Id") ==
+                                                                  self.tournament_index)[0]["players"][i][1]
+                        IdFounded = True
+                        break
+                    else:
+                        continue
+
+            PlayerData = self.playerPool.search(where("Player_Id") ==
+                                                PlayerIndex)[0]
+            print("Joueur " + str(i+1) + " " + str(PlayerData["playerName"]) +
+                  " (" + str(PlayerData["Player_Id"]) + ") | Points : " + str(datas[1]))
+
     # on trie les joueurs par rapport à leur score et leur rang
     def sortPlayersByScore(self):
         self.playersToSort.clear()
@@ -718,9 +736,12 @@ class PlayerMenuController:
             return PlayerCreationController()
         # Retour au menu
         elif next_action == "2":
+            return PlayerRankController()
+        # Retour au menu
+        elif next_action == "3":
             return HomeController()
         # Quitter le programme
-        elif next_action == "3":
+        elif next_action == "4":
             return EndController()
         else:
             self.view.notify_invalid_choice()
@@ -751,7 +772,7 @@ class PlayerCreationController:
         # on évite les erreurs de saisie dans le rang du joueur
         while wrongChoice is True:
             try:
-                playerRank = int(input("Entrez le rang du joueur : "))
+                playerRank = abs(int(input("Entrez le rang du joueur : ")))
                 wrongChoice = False
                 continue
             except (IndexError, ValueError):
@@ -776,6 +797,61 @@ class PlayerCreationController:
         self.playerPool.insert(playerData)
 
         print("Le joueur a été crée")
+
+
+class PlayerRankController:
+    """Contrôleur responsable de gérer le menu de
+    modification du rang d'un joueur.
+    """
+
+    def __init__(self):
+        self.db = TinyDB('db.json')
+        self.playerPool = self.db.table('player_pool')
+
+    def run(self):
+        if len(self.playerPool.all()) == 0:
+            print("Pas de joueurs crées")
+        else:
+            self.rankPlayer()
+        return PlayerMenuController()
+
+    def rankPlayer(self):
+        # visualisation des joueurs présent dans la BDD
+        playerPool = self.playerPool.all()
+        for datas in playerPool:
+            print("ID : " + str(datas["Player_Id"]) + ", Nom : " + str(datas["playerName"])
+                  + ", Prénom : " + str(datas["playerSurname"]) + ", Date de naissance : "
+                  + str(datas["playerBirthdate"]) + ", Genre : " + str(datas["playerGender"])
+                  + ", Classement : " + str(datas["playerRank"]))
+
+        wrongChoice = True
+        while wrongChoice is True:
+            try:
+                playerChoice = int(input("Séléctionnez le joueur (ID):"))
+                # on va chercher l'ID du joueur dans la BDD des joueurs
+                user_Choice = self.playerPool.search(where("Player_Id") == playerChoice)
+                wrongChoice = False
+                playerRank = str(user_Choice[0]["playerRank"])
+            except (IndexError, ValueError):
+                print("Veuillez entrer un ID correcte")
+                wrongChoice = True
+                continue
+
+        wrongChoice = True
+        while wrongChoice is True:
+            try:
+                print("Rang actuel du joueur : " + playerRank)
+                newRank = abs(int(input("Quel est le nouveau rang du joueur?")))
+                wrongChoice = False
+            except (IndexError, ValueError):
+                print("Veuillez entrer un rang correcte")
+                wrongChoice = True
+                continue
+
+        playerData = {"playerRank": newRank}
+        # Mise à jour du joueur correspondant dans la BDD des joueurs
+        self.playerPool.update(playerData,
+                               Query().Player_Id == playerChoice)
 
 
 class ReportMenuController:

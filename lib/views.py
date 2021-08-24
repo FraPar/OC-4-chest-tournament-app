@@ -30,8 +30,9 @@ class PlayerMenuView:
             "Menu de création d'un joueur\n"
             "==============================\n"
             "1. créer un joueur\n"
-            "2. retour à l'accueil\n"
-            "3. quitter le programme\n"
+            "2. changer le classement d'un joueur\n"
+            "3. retour à l'accueil\n"
+            "4. quitter le programme\n"
         )
 
     def get_user_choice(self):
