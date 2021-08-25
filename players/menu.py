@@ -2,7 +2,8 @@ import views
 
 from . import PlayerCreationController
 from .change_rank import PlayerRankController
-#from controllers import HomeController, EndController
+# from controllers import HomeController, EndController
+
 
 class PlayerMenuController:
     """Contrôleur responsable de gérer le menu de création d'un nouveau
@@ -23,10 +24,12 @@ class PlayerMenuController:
             return PlayerRankController()
         # Retour au menu
         elif next_action == "3":
-            return HomeController()
+            pass
+            # return HomeController()
         # Quitter le programme
         elif next_action == "4":
-            return EndController()
+            pass
+            # return EndController()
         else:
             self.view.notify_invalid_choice()
             return PlayerMenuController()

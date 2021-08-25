@@ -1,4 +1,5 @@
-from tinydb import TinyDB, where, Query
+from tinydb import TinyDB
+
 
 class PlayerCreationController:
     """Contrôleur responsable de gérer le menu de création d'un nouveau
@@ -11,7 +12,8 @@ class PlayerCreationController:
 
     def run(self):
         self.creation_player()
-        return PlayerMenuController()
+        pass
+        # return PlayerMenuController()
 
     def creation_player(self):
         # renseignement des informations concernant le joueur

@@ -1,6 +1,7 @@
 import views
 
-from tinydb import TinyDB, where, Query
+from tinydb import TinyDB, where
+
 
 class ReportMenuController:
     """Contrôleur responsable de gérer le menu de rapports.
@@ -20,10 +21,12 @@ class ReportMenuController:
             return ReportTournamentController()
         # retour à l'accueil
         elif next_action == "3":
-            return HomeController()
+            pass
+            # return HomeController()
         # quitter le programme
         elif next_action == "4":
-            return EndController()
+            pass
+            # return EndController()
         else:
             self.view.notify_invalid_choice()
             return ReportMenuController()
@@ -50,19 +53,20 @@ class ReportAllPlayerController:
         return ReportMenuController()
 
     def creation_report(self):
-            user_choice = self.next_action
-            # Trier l'ensemble par ordre Alphabétique
-            if user_choice == "1":
-                self.player_sort_by_name()
-            # Trier l'ensemble par Rang
-            elif user_choice == "2":
-                self.player_sort_by_rank()
-            # retour à l'accueil
-            elif user_choice == "3":
-                return EndController()
-            else:
-                self.view.notify_invalid_choice()
-                return ReportAllPlayerController()
+        user_choice = self.next_action
+        # Trier l'ensemble par ordre Alphabétique
+        if user_choice == "1":
+            self.player_sort_by_name()
+        # Trier l'ensemble par Rang
+        elif user_choice == "2":
+            self.player_sort_by_rank()
+        # retour à l'accueil
+        elif user_choice == "3":
+            pass
+            # return EndController()
+        else:
+            self.view.notify_invalid_choice()
+            return ReportAllPlayerController()
 
     # Fonction de tri des joueurs par Noms
     def player_sort_by_name(self):
@@ -130,7 +134,8 @@ class ReportTournamentController:
 
         # Retour au menu d'accueil
         elif user_choice == "4":
-            return EndController()
+            pass
+            # return EndController()
 
         else:
             self.view.notify_invalid_choice()

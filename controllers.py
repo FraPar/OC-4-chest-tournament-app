@@ -1,10 +1,8 @@
 import views
 
-from tournaments import TournamentCreationController, CreateTournament, LoadTournament
+from tournaments import CreateTournament, LoadTournament
 from players import PlayerMenuController
 from chess_reports import ReportMenuController
-
-from tinydb import TinyDB, where, Query
 
 
 class ApplicationController:

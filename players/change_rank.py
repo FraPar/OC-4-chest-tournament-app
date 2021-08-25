@@ -2,7 +2,8 @@ import views
 
 from tinydb import TinyDB, where, Query
 
-#from . import PlayerMenuController
+# from . import PlayerMenuController
+
 
 class PlayerRankController:
     """Contrôleur responsable de gérer le menu de
@@ -19,7 +20,7 @@ class PlayerRankController:
             print("Pas de joueurs crées")
         else:
             self.rank_player()
-        #return PlayerMenuController()
+        # return PlayerMenuController()
 
     def rank_player(self):
         # visualisation des joueurs présent dans la BDD
