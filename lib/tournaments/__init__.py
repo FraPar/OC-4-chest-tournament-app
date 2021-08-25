@@ -6,3 +6,4 @@ from .first_round import FirstRound
 from .play_match import PlayMatch
 from .player_choice import PlayerChoice
 from .other_rounds import OtherRounds
+from .sort_tournament_data import SortTournamentData

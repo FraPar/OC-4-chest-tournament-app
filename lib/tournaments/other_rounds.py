@@ -1,5 +1,6 @@
 import random
 from .play_match import PlayMatch
+from .sort_tournament_data import SortTournamentData
 
 
 class OtherRounds:
@@ -28,11 +29,11 @@ class OtherRounds:
         # fonction permettant de trouver un match dans le cas d'un doublon de match
         OtherRounds.match_to_add(self)
         # fonction permettant d'associer les joueurs entre eux avant de jouer le match
-        self.sort_player_by_match()
+        SortTournamentData.sort_player_by_match(self)
         # fonction permettant de jouer le match
         PlayMatch.play_match(self)
         # fonction permettant de trier les joueurs selon leur rang / nouveau score
-        self.sort_players_by_score()
+        SortTournamentData.sort_players_by_score(self)
 
     # fonction permettant de connaître les matchs joués par notre joueur
     def match_played(self):
