@@ -50,7 +50,7 @@ class TournamentCreationController:
     def run(self):
 
         # --- ETAPE 0 DE SAUVEGARDE --- #
-        self.starting_tournament()
+        SaveStateTournament.starting_tournament(self)
 
         # --- ETAPE 1 DE SAUVEGARDE --- #
         self.adding_players_in_tournament()
@@ -70,11 +70,7 @@ class TournamentCreationController:
             self.get_tournament_ranking()
 
             # Définition de l'étape de sauvegarde à 4, après le Round 2
-            self.save_step = 4
-            tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
-            # Mise à jour du tournoi correspondant dans la BDD des tournois
-            self.tournament_table.update(tournament_data,
-                                         Query().Tournament_Id == self.tournament_index)
+            SaveStateTournament.save_round_two(self)
 
             # --- ETAPE 4 DE SAUVEGARDE --- #
         if (self.load_state is True and self.save_step == 4) or self.load_state is False:
@@ -85,11 +81,8 @@ class TournamentCreationController:
             self.get_tournament_ranking()
 
             # Définition de l'étape de sauvegarde à 5, après le Round 3
-            self.save_step = 5
-            tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
-            # Mise à jour du tournoi correspondant dans la BDD des tournois
-            self.tournament_table.update(tournament_data,
-                                         Query().Tournament_Id == self.tournament_index)
+            SaveStateTournament.save_round_three(self)
+
 
             # --- ETAPE 5 DE SAUVEGARDE --- #
         if (self.load_state is True and self.save_step == 5) or self.load_state is False:
@@ -100,30 +93,7 @@ class TournamentCreationController:
             self.get_tournament_ranking()
 
             # Définition de l'étape de sauvegarde à 6, après le Round 4
-            self.save_step = 6
-            tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
-            # Mise à jour du tournoi correspondant dans la BDD des tournois
-            self.tournament_table.update(tournament_data,
-                                         Query().Tournament_Id == self.tournament_index)
-
-    def starting_tournament(self):
-        if self.load_state is False:
-            # renseignement des informations concernant le tournoi
-            tournament_name = input("Entrez le nom du tournoi : ")
-            tournament_location = input("Entrez le lieu du tournoi : ")
-            tournament_date = input("Entrez la date du tournoi : ")
-            tournament_round = int(4)
-            tournament_time = input("Entrez le temps du tournoi : ")
-            tournament_description = input("Entrez la description du tournoi : ")
-
-            # définition de l'étape de sauvegarde au niveau 1
-            self.save_step = 1
-            tournament_data = {"Tournament_Id": self.tournament_index, "Name": tournament_name,
-                               "Location": tournament_location, "Date": tournament_date,
-                               "Round": tournament_round, "Time": tournament_time,
-                               "Description": tournament_description, "save_step": self.save_step}
-            # sauvegarde des données renseignées dans la BDD
-            self.tournament_table.insert(tournament_data)
+            SaveStateTournament.save_round_four(self)
 
     # fonction de séléction des joueurs
     def player_choice(self):
@@ -236,11 +206,7 @@ class TournamentCreationController:
             self.get_tournament_ranking()
 
             # Définition de l'étape de sauvegarde à 3, après le Round 1
-            self.save_step = 3
-            tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
-            # Mise à jour du tournoi correspondant dans la BDD des tournois
-            self.tournament_table.update(tournament_data,
-                                         Query().Tournament_Id == self.tournament_index)
+            SaveStateTournament.save_round_one(self)
 
     # fonction globale permettant d'assurer les rounds 2 à 4
     def get_player_match(self):
@@ -505,12 +471,8 @@ class TournamentCreationController:
             self.second_half_players = self.player_list[self.middle_number_players:]
 
             # Définition de l'étape de sauvegarde à 2, après le classement des joueurs
-            self.save_step = 2
-            tournament_data = {"players": self.player_list_by_rank,
-                               "save_step": self.save_step}
-            # Mise à jour du tournoi correspondant dans la BDD des tournois
-            self.tournament_table.update(tournament_data,
-                                         Query().Tournament_Id == self.tournament_index)
+            SaveStateTournament.save_players(self)
+
 
 
 class CreateTournament:
@@ -619,3 +581,75 @@ class LoadTournament:
     # permet le tri par rang et par score
     def get_score(self, elem):
         return elem[1]
+
+
+class SaveStateTournament:
+    """Contrôleur reponsable de la sauvegarde d'un tournoi"""
+
+    def __init__(self, player_list_by_rank, total_match, tournament_index, tournament_data, load_state):
+        self.db = TinyDB('db.json')
+        self.tournament_table = self.db.table('tournament_table')
+        self.player_list_by_rank = player_list_by_rank
+        self.total_match = total_match
+        self.tournament_index = tournament_index
+        self.tournament_data = tournament_data
+        self.load_state = load_state
+
+    def starting_tournament(self):
+        if self.load_state is False:
+            # renseignement des informations concernant le tournoi
+            tournament_name = input("Entrez le nom du tournoi : ")
+            tournament_location = input("Entrez le lieu du tournoi : ")
+            tournament_date = input("Entrez la date du tournoi : ")
+            tournament_round = int(4)
+            tournament_time = input("Entrez le temps du tournoi : ")
+            tournament_description = input("Entrez la description du tournoi : ")
+
+            # définition de l'étape de sauvegarde au niveau 1
+            self.save_step = 1
+            tournament_data = {"Tournament_Id": self.tournament_index, "Name": tournament_name,
+                               "Location": tournament_location, "Date": tournament_date,
+                               "Round": tournament_round, "Time": tournament_time,
+                               "Description": tournament_description, "save_step": self.save_step}
+            # sauvegarde des données renseignées dans la BDD
+            self.tournament_table.insert(tournament_data)
+
+    def save_players(self):
+        self.save_step = 2
+        self.tournament_data = {"players": self.player_list_by_rank,
+                            "save_step": self.save_step}
+        # Mise à jour du tournoi correspondant dans la BDD des tournois
+        self.tournament_table.update(self.tournament_data,
+                                     Query().Tournament_Id == self.tournament_index)
+
+    def save_round_one(self):
+        self.save_step = 3
+        self.tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
+        # Mise à jour du tournoi correspondant dans la BDD des tournois
+        self.tournament_table.update(self.tournament_data,
+                                     Query().Tournament_Id == self.tournament_index)
+
+    def save_round_two(self):
+        self.save_step = 4
+        self.tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
+        # Mise à jour du tournoi correspondant dans la BDD des tournois
+        self.tournament_table.update(self.tournament_data,
+                                     Query().Tournament_Id == self.tournament_index)
+
+    def save_round_three(self):
+        self.save_step = 5
+        self.tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
+        # Mise à jour du tournoi correspondant dans la BDD des tournois
+        self.tournament_table.update(self.tournament_data,
+                                     Query().Tournament_Id == self.tournament_index)
+
+    def save_round_four(self):
+        self.save_step = 6
+        self.tournament_data = {"matchs": self.total_match, "save_step": self.save_step}
+        # Mise à jour du tournoi correspondant dans la BDD des tournois
+        self.tournament_table.update(self.tournament_data,
+                                     Query().Tournament_Id == self.tournament_index)
+
+    def send_save(self):
+        self.tournament_table.update(self.tournament_data,
+                                     Query().Tournament_Id == self.tournament_index)
