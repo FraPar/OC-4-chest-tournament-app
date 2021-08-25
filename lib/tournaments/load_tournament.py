@@ -2,6 +2,8 @@ from tinydb import TinyDB, where
 
 from .. import views
 
+from .controller_tournament import TournamentCreationController
+
 class LoadTournament:
     """Contrôleur reponsable du chargement d'un tournoi déjà commencé"""
 
