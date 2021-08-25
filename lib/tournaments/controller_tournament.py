@@ -3,9 +3,10 @@ from tinydb import TinyDB, where
 
 from .. import views
 
-from ..players import PlayerCreationController
 from .save_tournament import SaveStateTournament
 from .first_round import FirstRound
+from .adding_players_in_tournament import AddPlayerInTournament
+from .play_match import PlayMatch
 
 
 class TournamentCreationController:
@@ -56,7 +57,7 @@ class TournamentCreationController:
         SaveStateTournament.starting_tournament(self)
 
         # --- ETAPE 1 DE SAUVEGARDE --- #
-        self.adding_players_in_tournament()
+        AddPlayerInTournament.adding_players_in_tournament(self)
 
         # --- ETAPE 2 DE SAUVEGARDE --- #
         FirstRound.playing_first_round(self)
@@ -104,45 +105,6 @@ class TournamentCreationController:
             # Définition de l'étape de sauvegarde à 6, après le Round 4
             SaveStateTournament.save_round_four(self)
 
-    # fonction de séléction des joueurs
-    def player_choice(self):
-        # listing de l'ensemble des joueurs présents dans la BDD
-        for datas in self.player_pool.all():
-            print("ID :" + str(datas.get('Player_Id')) + " , Joueur : " + str(datas.get('player_name')))
-        if len(self.player_pool.all()) == 0:
-            print("Pas de joueurs crées")
-        else:
-            wrong_choice = True
-            # boucle permettant d'éviter un choix éronné
-            while wrong_choice is True:
-                player_choice = input("Séléctionnez l'ID du joueur :")
-                try:
-                    # recherche dans la BDD des joueurs l'ID demandé
-                    player_id = self.player_pool.search(where("Player_Id") == int(player_choice))[0]
-
-                    # test permettant de savoir si des joueurs ont déjà été inséré
-                    if len(self.player_list_to_sort) != 0:
-                        wrong_choice = False
-                        # boucle sur l'ensemble des joueurs inséré pour vérifier s'il y a un doublon
-                        for i in range(len(self.player_list_to_sort)):
-                            if self.player_list_to_sort[i][0] == player_id["Player_Id"]:
-                                print("Veuillez entrer un nouveau joueur (ID déjà rentré)")
-                                wrong_choice = True
-                                break
-                        # ajout des informations nécessaire à l'insertion d'un joueur dans un tournoi
-                        self.player_rank = player_id["player_rank"]
-                        self.last_index = player_id["Player_Id"]
-                        continue
-                    else:
-                        # ajout des informations nécessaire à l'insertion d'un joueur dans un tournoi
-                        # si aucun joueur n'avait été inséré auparavant
-                        self.player_rank = player_id["player_rank"]
-                        self.last_index = player_id["Player_Id"]
-                        wrong_choice = False
-                except (IndexError, ValueError):
-                    print("Veuillez entrer une ID correcte")
-                continue
-
     # fonction globale permettant d'assurer les rounds 2 à 4
     def get_player_match(self):
         self.player_match.clear()
@@ -164,7 +126,7 @@ class TournamentCreationController:
         # fonction permettant d'associer les joueurs entre eux avant de jouer le match
         self.sort_player_by_match()
         # fonction permettant de jouer le match
-        self.play_match()
+        PlayMatch.play_match(self)
         # fonction permettant de trier les joueurs selon leur rang / nouveau score
         self.sort_players_by_score()
 
@@ -248,69 +210,7 @@ class TournamentCreationController:
                     # on supprime les joueurs déjà trouvés
                     del self.players_sorted[i]
 
-    # on joue les matchs crées auparavant
-    def play_match(self):
-        self.match.clear()
 
-        # on boucle sur les joueurs avec un pas de 2 pour ne pas rejouer des matchs
-        for i in range(0, len(self.player_list), 2):
-
-            wrong_choice = True
-            # Boucle évitant les erreurs de saisie
-            while wrong_choice is True:
-                first_player_index = self.tournament_table.search(where("Tournament_Id") ==
-                                                                  self.tournament_index)[0]["players"][i][1]
-                second_player_index = self.tournament_table.search(where("Tournament_Id") ==
-                                                                   self.tournament_index)[0]["players"][i+1][1]
-                first_player_data = self.player_pool.search(where("Player_Id") ==
-                                                            first_player_index)[0]["player_name"]
-                second_player_data = self.player_pool.search(where("Player_Id") ==
-                                                             second_player_index)[0]["player_name"]
-                print("Joueur " + str(self.players_sorted[i][0]) + " " +
-                      str(first_player_data) + " (" + str(first_player_index) + ")" +
-                      " contre Joueur " + str(self.players_sorted[i+1][0]) + " " +
-                      str(second_player_data) + " (" + str(second_player_index) + ")")
-                match_winner = input("Entrez le numéro du Joueur gagnant (0 = égalité) : ")
-
-                try:
-                    # on teste si le 1er joueur des 2 est le gagnant
-                    if int(match_winner) == self.players_sorted[i][0]:
-                        wrong_choice = False
-                        # le 2ème joueur est alors perdant
-                        match_loser = self.players_sorted[i+1][0]
-                        # on reprend les scores de chaques joueurs et on met à jour
-                        score_winner = self.players_sorted[i][1] + 1
-                        score_loser = self.players_sorted[i+1][1]
-                        print("Gagnant : " + str(match_winner) + " ; Perdant : " + str(match_loser))
-                    # on teste si le 2ème joueur des 2 est le gagnant
-                    elif int(match_winner) == self.players_sorted[i+1][0]:
-                        wrong_choice = False
-                        # le 1er joueur est alors perdant
-                        match_loser = self.players_sorted[i][0]
-                        # on reprend les scores de chaques joueurs et on met à jour
-                        score_winner = self.players_sorted[i+1][1] + 1
-                        score_loser = self.players_sorted[i][1]
-                        print("Gagnant : " + str(match_winner) + " ; Perdant : " + str(match_loser))
-                    # on teste s'il y a eu égalité entre les joueurs
-                    elif int(match_winner) == 0:
-                        wrong_choice = False
-                        # on reprend les scores de chaques joueurs et on met à jour
-                        score_winner = self.players_sorted[i][1] + 0.5
-                        score_loser = self.players_sorted[i+1][1] + 0.5
-                        match_winner = self.players_sorted[i][0]
-                        match_loser = self.players_sorted[i+1][0]
-                        print("Égalité entre le Joueur : " + str(self.players_sorted[i][0]) +
-                              " et le Joueur : " + str(self.players_sorted[i+1][0]))
-                    else:
-                        continue
-
-                except ValueError:
-                    continue
-
-            print("")
-            # on ajoute les résultats aux variables
-            self.match.append(([int(match_winner), score_winner], [int(match_loser), score_loser]))
-            self.total_match.append(([int(match_winner), score_winner], [int(match_loser), score_loser]))
 
     # permet le tri par rang et par score
     def get_score(self, elem):
@@ -354,56 +254,4 @@ class TournamentCreationController:
         self.players_to_sort.sort(key=self.get_score, reverse=True)
         self.players_sorted = self.players_to_sort
 
-    def adding_players_in_tournament(self):
-        if (self.load_state is True and self.save_step == 1) or self.load_state is False:
 
-            # --- INSERTION DES DONNEES JOUEURS --- #
-            # Index permettant de créer un joueur automatiquement
-            player_index = 0
-            # Boucle permettant d'ajouter 8 joueurs ont bien été renseigné dans le tournoi
-            while len(self.player_list_to_sort) < 8:
-                player_index += 1
-                # Menu de choix de la manière d'insérer un joueur das le tournoi
-                self.view.render()
-                wrong_choice = True
-                # permet de boucler tant qu'un choix invalide est détécté
-                while wrong_choice is True:
-                    user_choice = input("Que voulez-vous faire? ")
-                    # Ajouter un joueur déjà éxistant
-                    if user_choice == "1":
-                        wrong_choice = False
-                        self.player_choice()
-                    # Créer un nouveau joueur
-                    elif user_choice == "2":
-                        wrong_choice = False
-                        PlayerCreationController().creation_player()
-                        self.last_index = self.player_pool.all()[-1]["Player_Id"]
-                        self.player_rank = self.player_pool.all()[-1]["player_rank"]
-                    else:
-                        wrong_choice = True
-                        print("Veuillez saisir une entrée valide")
-
-                # Ajout des joueurs et de leur rang avant tri
-                self.player_list_to_sort.append([(self.last_index), self.player_rank])
-                self.player_list.append(player_index)
-                continue
-
-            # Tri des joueurs par Rang
-            player_list_sorted = sorted(self.player_list_to_sort, key=lambda
-                                        item: item[1], reverse=True)
-
-            # Ajout d'un index aux joueurs pour connaître leur classement
-            index = 0
-            # Boucle sur l'ensemble des données triés pour pouvoir les insérer en BDD après
-            for datas in player_list_sorted:
-                index += 1
-                self.player_list_by_rank.append((index, datas[0], datas[1]))
-
-            # Définition des 4 premiers joueurs et des 4 derniers joueurs
-            self.number_of_players = len(self.player_list)
-            self.middle_number_players = int(self.number_of_players/2)
-            self.first_half_players = self.player_list[:self.middle_number_players]
-            self.second_half_players = self.player_list[self.middle_number_players:]
-
-            # Définition de l'étape de sauvegarde à 2, après le classement des joueurs
-            SaveStateTournament.save_players(self)
