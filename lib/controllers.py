@@ -1,8 +1,8 @@
-import views
+from . import views
 
-from tournaments import CreateTournament, LoadTournament
-from players import PlayerMenuController
-from chess_reports import ReportMenuController
+from .tournaments import CreateTournament, LoadTournament
+from .players import PlayerMenuController
+from .chess_reports import ReportMenuController
 
 
 class ApplicationController:

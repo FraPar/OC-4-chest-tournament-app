@@ -1,8 +1,9 @@
 import random
 from tinydb import TinyDB, where, Query
 
-import views
-from players import PlayerCreationController
+from .. import views
+
+from ..players import PlayerCreationController
 
 
 class TournamentCreationController:

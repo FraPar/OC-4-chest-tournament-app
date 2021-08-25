@@ -1,4 +1,4 @@
-from controllers import ApplicationController
+from lib.controllers import ApplicationController
 
 
 def main():

@@ -68,3 +68,12 @@ class Player:
 
     def __repr__(self):
         return f"Player(name={self.name})"
+
+    # MISE EN PLACE SAUVEGARDE (DAL)
+    # def save_player(self):
+    #    self.save_step = 2
+    #    self.tournament_data = {"players": self.player_list_by_rank,
+    #                        "save_step": self.save_step}
+    #    # Mise à jour du tournoi correspondant dans la BDD des tournois
+    #    self.tournament_table.update(self.tournament_data,
+    #                                 Query().Tournament_Id == self.tournament_index)

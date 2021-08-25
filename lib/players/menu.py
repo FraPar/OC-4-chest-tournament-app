@@ -1,4 +1,4 @@
-import views
+from .. import views
 
 from . import PlayerCreationController
 from .change_rank import PlayerRankController

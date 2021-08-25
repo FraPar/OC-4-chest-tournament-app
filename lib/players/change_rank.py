@@ -1,4 +1,4 @@
-import views
+from .. import views
 
 from tinydb import TinyDB, where, Query
 
