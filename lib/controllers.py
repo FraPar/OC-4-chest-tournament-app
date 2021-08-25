@@ -138,7 +138,9 @@ class TournamentCreationController:
                     # Créer un nouveau joueur
                     elif user_choice == "2":
                         wrong_choice = False
-                        self.creation_player()
+                        PlayerCreationController().creation_player()
+                        self.last_index = self.player_pool.all()[-1]["Player_Id"]
+                        self.player_rank = self.player_pool.all()[-1]["player_rank"]
                     else:
                         wrong_choice = True
                         print("Veuillez saisir une entrée valide")
@@ -337,44 +339,6 @@ class TournamentCreationController:
                 except (IndexError, ValueError):
                     print("Veuillez entrer une ID correcte")
                 continue
-
-    def creation_player(self):
-        # renseignement des informations concernant le joueur
-        player_name = input("Entrez le nom du joueur : ")
-        player_surname = input("Entrez le prénom du joueur : ")
-        player_birthday = input("Entrez la date de naissance du joueur : ")
-        player_gender = input("Entrez le genre du joueur : ")
-        wrong_choice = True
-
-        # on évite les erreurs de saisie dans le rang du joueur
-        while wrong_choice is True:
-            try:
-                player_rank = abs(int(input("Entrez le rang du joueur : ")))
-                wrong_choice = False
-                continue
-            except (IndexError, ValueError):
-                print("Veuillez entrer un rang correcte")
-                continue
-
-        # définition de l'index du joueur a créer
-        # on vérifie si la base de donnée n'a pas encore de joueurs
-        if len(self.player_pool.all()) == 0:
-            last_index = 0
-        else:
-            # on regarde quel est le prochain index disponible dans la BDD des joueurs
-            player_pool = self.player_pool.all()
-            sorted_list = sorted(player_pool, key=lambda item: item["Player_Id"])
-            last_index = list(sorted_list)[-1]["Player_Id"] + 1
-
-        player_data = {"Player_Id": last_index, "player_name": player_name,
-                       "player_surname": player_surname, "player_birthday": player_birthday,
-                       "player_gender": player_gender, "player_rank": int(player_rank)}
-
-        # insertion des données du joueur dans la BDD correspondante
-        self.player_pool.insert(player_data)
-
-        print("Le joueur a été crée")
-
 
     # fonction globale permettant d'assurer les rounds 2 à 4
     def get_player_match(self):
@@ -614,10 +578,7 @@ class CreateTournament:
             last_index = 0
         else:
             # on définie le prochain ID utilisable de la table des tournois
-            tournament_table = self.tournament_table.all()
-            sorted_list = sorted(tournament_table, key=lambda
-                                 item: item["Tournament_Id"])
-            last_index = list(sorted_list)[-1]["Tournament_Id"] + 1
+            last_index = self.tournament_table.all()[-1]["Tournament_Id"] + 1
 
         tournament_index = last_index
 
@@ -640,6 +601,7 @@ class LoadTournament:
         # on vérifie qu'il y a un tournoi dans la BDD
         if len(self.tournament_table.all()) == 0:
             print("Pas de tournois joués")
+            return HomeController()
         else:
             # activation de la variable permettant le chargement de tournoi
             load_state = True
@@ -724,7 +686,6 @@ class PlayerMenuController:
             self.view.notify_invalid_choice()
             return PlayerMenuController()
 
-
 class PlayerCreationController:
     """Contrôleur responsable de gérer le menu de création d'un nouveau
     joueur.
@@ -762,9 +723,7 @@ class PlayerCreationController:
             last_index = 0
         else:
             # on regarde quel est le prochain index disponible dans la BDD des joueurs
-            player_pool = self.player_pool.all()
-            sorted_list = sorted(player_pool, key=lambda item: item["Player_Id"])
-            last_index = list(sorted_list)[-1]["Player_Id"] + 1
+            last_index = self.player_pool.all()[-1]["Player_Id"] + 1
 
         player_data = {"Player_Id": last_index, "player_name": player_name,
                        "player_surname": player_surname, "player_birthday": player_birthday,
