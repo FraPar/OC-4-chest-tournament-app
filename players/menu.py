@@ -1,5 +1,9 @@
 import views
 
+from . import PlayerCreationController
+from .change_rank import PlayerRankController
+#from controllers import HomeController, EndController
+
 class PlayerMenuController:
     """Contrôleur responsable de gérer le menu de création d'un nouveau
     joueur.
