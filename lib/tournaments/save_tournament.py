@@ -1,7 +1,7 @@
 from tinydb import TinyDB, Query
 
 
-class SaveStateTournament:
+class SaveStateTournament():
     """Contrôleur reponsable de la sauvegarde d'un tournoi"""
 
     def __init__(self, player_list_by_rank, total_match, tournament_index, tournament_data, load_state):
