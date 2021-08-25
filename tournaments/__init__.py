@@ -1,2 +1,2 @@
-from lib import controllers
-from .controllers import ManualRoundCreationController, LoadTournament, CreateTournament
+from .create_tournament import TournamentCreationController, CreateTournament
+# from controllers import LoadTournament, CreateTournament, TournamentCreationController, PlayerCreationController

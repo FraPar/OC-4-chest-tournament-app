@@ -1,2 +1,2 @@
-from lib import controllers
-from .controllers import PlayerMenuController, PlayerCreationController, PlayerRankController
+from .create_player import PlayerCreationController
+from .menu import PlayerMenuController
