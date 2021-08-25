@@ -4,10 +4,9 @@ from tinydb import TinyDB, where
 from .. import views
 
 from .save_tournament import SaveStateTournament
-from .first_round import FirstRound
+from ..rounds.first_round import FirstRound
 from .adding_players_in_tournament import AddPlayerInTournament
-from .play_match import PlayMatch
-from .other_rounds import OtherRounds
+from ..rounds.other_rounds import OtherRounds
 from .sort_tournament_data import SortTournamentData
 
 

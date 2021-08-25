@@ -17,7 +17,7 @@ class PlayerCreationController:
 
     def creation_player(self):
         # renseignement des informations concernant le joueur
-        player_name = input("Entrez le nom du joueur : (TEST) ")
+        player_name = input("Entrez le nom du joueur : ")
         player_surname = input("Entrez le prénom du joueur : ")
         player_birthday = input("Entrez la date de naissance du joueur : ")
         player_gender = input("Entrez le genre du joueur : ")

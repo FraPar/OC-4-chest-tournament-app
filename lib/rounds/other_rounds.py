@@ -1,6 +1,6 @@
 import random
-from .play_match import PlayMatch
-from .sort_tournament_data import SortTournamentData
+from ..matchs.play_match import PlayMatch
+from ..tournaments.sort_tournament_data import SortTournamentData
 
 
 class OtherRounds:
