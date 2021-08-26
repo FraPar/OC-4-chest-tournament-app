@@ -1,3 +1,5 @@
+"""Tournament package."""
+
 from ..matchs.play_match import PlayMatch
 from .controller_tournament import TournamentCreationController
 from .create_tournament import CreateTournament
