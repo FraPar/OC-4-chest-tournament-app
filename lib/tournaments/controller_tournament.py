@@ -1,5 +1,4 @@
-import random
-from tinydb import TinyDB, where
+from tinydb import TinyDB
 
 from .. import views
 
@@ -94,7 +93,6 @@ class TournamentCreationController:
 
             # Définition de l'étape de sauvegarde à 5, après le Round 3
             SaveStateTournament.save_round_three(self)
-
 
             # --- ETAPE 5 DE SAUVEGARDE --- #
         if (self.load_state is True and self.save_step == 5) or self.load_state is False:

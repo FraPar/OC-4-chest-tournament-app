@@ -1,1 +1,1 @@
-from .controllers import HomeController
+"""Tournament package."""

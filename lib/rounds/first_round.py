@@ -35,16 +35,16 @@ class FirstRound():
                 # Boucle permettant d'assurer un choix valide
                 while wrong_choice is True:
                     first_player_index = self.tournament_table.search(where("Tournament_Id") ==
-                                                                        self.tournament_index)[0]["players"][i][1]
+                                                                      self.tournament_index)[0]["players"][i][1]
                     second_player_index = self.tournament_table.search(where("Tournament_Id") ==
-                                                                        self.tournament_index)[0]["players"][i+4][1]
+                                                                       self.tournament_index)[0]["players"][i+4][1]
                     first_player_data = self.player_pool.search(where("Player_Id") ==
                                                                 first_player_index)[0]["player_name"]
                     second_player_data = self.player_pool.search(where("Player_Id") ==
-                                                                    second_player_index)[0]["player_name"]
+                                                                 second_player_index)[0]["player_name"]
                     print("Joueur " + str(i+1) + " " + str(first_player_data) + " (" + str(first_player_index) + ")" +
-                            " contre Joueur " + str(i+5) + " " +
-                            str(second_player_data) + " (" + str(second_player_index) + ")")
+                          " contre Joueur " + str(i+5) + " " +
+                          str(second_player_data) + " (" + str(second_player_index) + ")")
                     match_winner = input("Entrez le numéro du gagnant (0 = égalité) : ")
                     # définition des points alloués aux gagnants et aux perdants
                     score_winner = 1
@@ -69,7 +69,7 @@ class FirstRound():
                             match_winner = self.first_half_players[i]
                             match_loser = self.second_half_players[i]
                             print("Égalité entre le Joueur : " + str(self.first_half_players[i]) +
-                                    " et le Joueur : " + str(self.second_half_players[i]) + "\n")
+                                  " et le Joueur : " + str(self.second_half_players[i]) + "\n")
                         else:
                             continue
 

@@ -1,5 +1,6 @@
 from tinydb import TinyDB, where
 
+
 class SortTournamentData:
     """Tri les données du tournoi pour un
     classement en ordre."""

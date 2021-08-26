@@ -35,7 +35,7 @@ class SaveStateTournament():
     def save_players(self):
         self.save_step = 2
         self.tournament_data = {"players": self.player_list_by_rank,
-                            "save_step": self.save_step}
+                                "save_step": self.save_step}
         # Mise à jour du tournoi correspondant dans la BDD des tournois
         self.tournament_table.update(self.tournament_data,
                                      Query().Tournament_Id == self.tournament_index)

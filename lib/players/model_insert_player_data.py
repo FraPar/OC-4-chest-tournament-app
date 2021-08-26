@@ -16,7 +16,6 @@ class SavePlayerData:
         self.last_index = last_index
         self.player_rank = player_rank
 
-
     def run(self):
         self.creation_player()
         pass

@@ -4,6 +4,7 @@ from ..tournaments import CreateTournament, LoadTournament
 from ..players import PlayerMenuController
 from ..chess_reports import ReportMenuController
 
+
 class HomeController:
     """Contrôleur responsable de gérer le menu d'accueil."""
 

@@ -1,10 +1,7 @@
-import random
-from tinydb import TinyDB, where, Query
+from tinydb import TinyDB
 
 from .. import views
 
-from ..players import PlayerCreationController
-from .model_save_tournament import SaveStateTournament
 from .controller_tournament import TournamentCreationController
 
 

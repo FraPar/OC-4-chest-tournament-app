@@ -9,7 +9,6 @@ class PlayerChoice:
         self.player_pool = self.db.table('player_pool')
         self.player_list_to_sort = player_list_to_sort
 
-
     # fonction de séléction des joueurs
     def player_choice(self):
         # listing de l'ensemble des joueurs présents dans la BDD

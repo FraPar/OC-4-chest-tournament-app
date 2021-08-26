@@ -1,9 +1,3 @@
-from . import views
-
-from .tournaments import CreateTournament, LoadTournament
-from .players import PlayerMenuController
-from .chess_reports import ReportMenuController
-
 from .home import HomeController
 
 
