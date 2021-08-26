@@ -6,7 +6,7 @@ from ..players.player_choice import PlayerChoice
 class AddPlayerInTournament:
     """Création d'un nouveau tournoi"""
 
-    def __init__(self, player_list_by_rank, total_match, tournament_index, tournament_data, load_state, save_step):
+    def __init__(self, player_list_by_rank, load_state, save_step):
         self.player_list_by_rank = player_list_by_rank
 
         self.save_step = save_step
