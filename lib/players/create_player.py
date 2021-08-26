@@ -1,6 +1,6 @@
 from tinydb import TinyDB
 
-from .model_insert_player_data import SavePlayerData
+from ..models.model_insert_player_data import SavePlayerData
 
 
 class PlayerCreationController:

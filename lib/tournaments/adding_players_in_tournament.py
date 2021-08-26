@@ -1,5 +1,5 @@
 from ..players import PlayerCreationController
-from .model_save_tournament import SaveStateTournament
+from ..models.model_save_tournament import SaveStateTournament
 from ..players.player_choice import PlayerChoice
 
 
