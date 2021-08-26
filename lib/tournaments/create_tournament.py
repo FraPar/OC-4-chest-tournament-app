@@ -4,7 +4,7 @@ from tinydb import TinyDB, where, Query
 from .. import views
 
 from ..players import PlayerCreationController
-from .save_tournament import SaveStateTournament
+from .model_save_tournament import SaveStateTournament
 from .controller_tournament import TournamentCreationController
 
 

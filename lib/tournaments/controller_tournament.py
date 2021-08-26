@@ -3,7 +3,7 @@ from tinydb import TinyDB, where
 
 from .. import views
 
-from .save_tournament import SaveStateTournament
+from .model_save_tournament import SaveStateTournament
 from ..rounds.first_round import FirstRound
 from .adding_players_in_tournament import AddPlayerInTournament
 from ..rounds.other_rounds import OtherRounds
